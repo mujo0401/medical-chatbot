@@ -1,0 +1,333 @@
+/* Medical Theme Base Styles */
+
+/* CSS Variables for Medical Theme */
+:root {
+  --medical-primary: #3b82f6;
+  --medical-secondary: #10b981;
+  --medical-accent: #8b5cf6;
+  --medical-light: #f8fafc;
+  --medical-bg: rgba(248, 250, 252, 0.95);
+  --medical-white: #ffffff;
+  --medical-text: #1e293b;
+  --medical-text-light: #64748b;
+  --medical-border: rgba(59, 130, 246, 0.1);
+  --medical-shadow: rgba(59, 130, 246, 0.08);
+  --medical-success: #10b981;
+  --medical-warning: #f59e0b;
+  --medical-error: #ef4444;
+}
+
+/* Resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body with Medical Theme */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, var(--medical-light) 0%, #e1f5fe 25%, #f3e5f5 50%, #e8f5e8 75%, var(--medical-white) 100%);
+  color: var(--medical-text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Medical-themed Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #059669);
+}
+
+/* Medical Avatar Styles */
+.medical-avatar {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.medical-user-avatar {
+  background: linear-gradient(135deg, var(--medical-accent), var(--medical-primary));
+  border: 2px solid rgba(139, 92, 246, 0.2);
+}
+
+.medical-pulse {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent);
+  animation: medicalPulse 2s infinite;
+}
+
+@keyframes medicalPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* Medical Message Bubble Enhancements */
+.medical-bubble {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--medical-border);
+  box-shadow: 0 8px 32px var(--medical-shadow);
+  position: relative;
+}
+
+.medical-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary), var(--medical-accent));
+  background-size: 200% 100%;
+  animation: medicalGradient 3s ease infinite;
+  border-radius: 20px 20px 0 0;
+}
+
+@keyframes medicalGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.medical-decorations {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
+.medical-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--medical-primary), transparent);
+}
+
+.medical-dots span {
+  width: 4px;
+  height: 4px;
+  background: var(--medical-primary);
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: medicalDotPulse 1.5s ease-in-out infinite;
+}
+
+.medical-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.medical-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes medicalDotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+/* Medical Empty State */
+.medical-empty {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  margin: 40px;
+  box-shadow: 0 8px 32px var(--medical-shadow);
+  border: 1px solid var(--medical-border);
+}
+
+.medical-icon-container {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.medical-icon-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.medical-empty-text h3 {
+  color: var(--medical-text);
+  margin-bottom: 12px;
+}
+
+.medical-empty-text p {
+  color: var(--medical-text-light);
+  margin-bottom: 24px;
+}
+
+.medical-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.medical-pill {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  color: var(--medical-primary);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.medical-pill:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Medical Input Styles */
+.medical-input {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid var(--medical-border);
+}
+
+.medical-input-wrapper {
+  position: relative;
+}
+
+.medical-message-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--medical-border);
+  border-radius: 24px;
+  transition: all 0.3s ease;
+}
+
+.medical-message-input:focus {
+  border-color: var(--medical-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 20px var(--medical-shadow);
+  background: var(--medical-white);
+}
+
+.medical-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.medical-message-input:focus + .medical-glow {
+  opacity: 1;
+}
+
+.medical-send-btn {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.medical-send-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+}
+
+.medical-disclaimer {
+  color: var(--medical-text-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.medical-warning {
+  color: var(--medical-error);
+  margin-left: 16px;
+}
+
+/* Medical Loading States */
+.medical-loading-avatar {
+  animation: medicalLoading 2s ease-in-out infinite;
+}
+
+@keyframes medicalLoading {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.medical-loading-bubble {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.medical-loading-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--medical-primary);
+  font-weight: 600;
+}
+
+.medical-wave {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--medical-primary), transparent);
+  background-size: 50% 100%;
+  animation: medicalWave 2s linear infinite;
+}
+
+@keyframes medicalWave {
+  0% { background-position: -50% 0; }
+  100% { background-position: 150% 0; }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --medical-border: rgba(59, 130, 246, 0.3);
+    --medical-shadow: rgba(59, 130, 246, 0.2);
+  }
+  
+  .medical-bubble {
+    border-width: 2px;
+  }
+}

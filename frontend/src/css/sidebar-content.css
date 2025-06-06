@@ -1,0 +1,1051 @@
+/* Fully Updated Ultra Light Modern Sidebar CSS with Enhanced DNA Animation */
+
+:root {
+  --primary: #6366f1;
+  --secondary: #06b6d4;
+  --accent: #10b981;
+  --text: #374151;
+  --text-light: #9ca3af;
+  --text-lighter: #d1d5db;
+  --bg-primary: #ffffff;
+  --bg-secondary: #fefefe;
+  --bg-tertiary: #fafafa;
+  --bg-card: #ffffff;
+  --border: #f3f4f6;
+  --border-light: #f9fafb;
+  --medical-primary: #3b82f6;
+  --medical-secondary: #10b981;
+  --medical-accent: #8b5cf6;
+  --medical-text: #1f2937;
+  --medical-bg-hover: rgba(59, 130, 246, 0.08);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* ==========================================
+   ULTRA LIGHT SIDEBAR STRUCTURE
+   ========================================== */
+
+.sidebar {
+  width: 300px;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+}
+
+.sidebar.closed {
+  width: 0;
+  overflow: hidden;
+}
+
+/* ==========================================
+   ENHANCED HEADER with Full-Width DNA Animation
+   ========================================== */
+/* Working DNA Animation CSS - Full Header Coverage & Guaranteed Animation */
+
+/* Override the header completely */
+.sidebar-header {
+  position: relative !important;
+  padding: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #fefefe !important;
+  border-bottom: 1px solid #f9fafb !important;
+  min-height: 100px !important;
+  overflow: hidden !important;
+  z-index: 1 !important;
+}
+
+/* DNA Animation Container - Covers ENTIRE header */
+.dna-helix {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.08) 0%, 
+    rgba(16, 185, 129, 0.08) 30%,
+    rgba(139, 92, 246, 0.08) 60%,
+    rgba(59, 130, 246, 0.08) 100%) !important;
+  border-radius: 0 !important;
+}
+
+/* Floating DNA Particles - LARGE and VISIBLE */
+.strand {
+  position: absolute !important;
+  border-radius: 50% !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  will-change: transform, opacity !important;
+}
+
+/* Large Blue Particles */
+.strand-base {
+  width: 8px !important;
+  height: 8px !important;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.9) 0%, 
+    rgba(59, 130, 246, 0.6) 100%) !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6) !important;
+  animation: floatBlue 4s infinite ease-in-out !important;
+}
+
+/* Medium Green Particles */
+.strand-complement {
+  width: 6px !important;
+  height: 6px !important;
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.9) 0%, 
+    rgba(16, 185, 129, 0.6) 100%) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6) !important;
+  animation: floatGreen 3.5s infinite ease-in-out !important;
+}
+
+/* Small Purple Particles */
+.strand-connector {
+  width: 5px !important;
+  height: 5px !important;
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.8) 0%, 
+    rgba(139, 92, 246, 0.5) 100%) !important;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5) !important;
+  animation: floatPurple 5s infinite ease-in-out !important;
+}
+
+/* Micro Particles */
+.strand-micro {
+  width: 4px !important;
+  height: 4px !important;
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.7) 0%, 
+    rgba(16, 185, 129, 0.7) 100%) !important;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.5) !important;
+  animation: floatMicro 2.8s infinite ease-in-out !important;
+}
+
+/* Positioning across FULL HEADER - 20 particles spread throughout */
+.strand-1 { top: 10% !important; left: 5% !important; animation-delay: 0s !important; }
+.strand-2 { top: 70% !important; left: 12% !important; animation-delay: 0.5s !important; }
+.strand-3 { top: 30% !important; left: 20% !important; animation-delay: 1s !important; }
+.strand-4 { top: 85% !important; left: 28% !important; animation-delay: 1.5s !important; }
+.strand-5 { top: 15% !important; left: 35% !important; animation-delay: 2s !important; }
+.strand-6 { top: 60% !important; left: 42% !important; animation-delay: 2.5s !important; }
+.strand-7 { top: 40% !important; left: 50% !important; animation-delay: 3s !important; }
+.strand-8 { top: 80% !important; left: 58% !important; animation-delay: 3.5s !important; }
+.strand-9 { top: 20% !important; left: 65% !important; animation-delay: 0.7s !important; }
+.strand-10 { top: 90% !important; left: 72% !important; animation-delay: 1.2s !important; }
+.strand-11 { top: 50% !important; left: 80% !important; animation-delay: 1.8s !important; }
+.strand-12 { top: 25% !important; left: 88% !important; animation-delay: 2.3s !important; }
+.strand-13 { top: 75% !important; left: 95% !important; animation-delay: 0.3s !important; }
+.strand-14 { top: 35% !important; left: 8% !important; animation-delay: 1.7s !important; }
+.strand-15 { top: 65% !important; left: 18% !important; animation-delay: 2.8s !important; }
+.strand-16 { top: 45% !important; left: 32% !important; animation-delay: 1.1s !important; }
+.strand-17 { top: 55% !important; left: 48% !important; animation-delay: 2.1s !important; }
+.strand-18 { top: 5% !important; left: 62% !important; animation-delay: 0.9s !important; }
+.strand-19 { top: 95% !important; left: 78% !important; animation-delay: 1.6s !important; }
+.strand-20 { top: 12% !important; left: 92% !important; animation-delay: 2.7s !important; }
+
+/* Connection Lines - Spanning across header */
+.dna-connection {
+  position: absolute !important;
+  width: 3px !important;
+  border-radius: 1px !important;
+  background: linear-gradient(45deg, 
+    rgba(59, 130, 246, 0.4), 
+    rgba(16, 185, 129, 0.3), 
+    rgba(139, 92, 246, 0.4)) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  animation: connectionFlow 3s infinite ease-in-out !important;
+}
+
+.connection-1 {
+  height: 50px !important;
+  top: 15% !important;
+  left: 10% !important;
+  transform: rotate(45deg) !important;
+  animation-delay: 0s !important;
+}
+
+.connection-2 {
+  height: 60px !important;
+  top: 40% !important;
+  left: 25% !important;
+  transform: rotate(-30deg) !important;
+  animation-delay: 1s !important;
+}
+
+.connection-3 {
+  height: 45px !important;
+  top: 25% !important;
+  left: 45% !important;
+  transform: rotate(70deg) !important;
+  animation-delay: 2s !important;
+}
+
+.connection-4 {
+  height: 55px !important;
+  top: 65% !important;
+  left: 15% !important;
+  transform: rotate(-60deg) !important;
+  animation-delay: 1.5s !important;
+}
+
+.connection-5 {
+  height: 40px !important;
+  top: 10% !important;
+  left: 60% !important;
+  transform: rotate(120deg) !important;
+  animation-delay: 0.8s !important;
+}
+
+.connection-6 {
+  height: 65px !important;
+  top: 75% !important;
+  left: 75% !important;
+  transform: rotate(-45deg) !important;
+  animation-delay: 2.2s !important;
+}
+
+.connection-7 {
+  height: 35px !important;
+  top: 35% !important;
+  left: 85% !important;
+  transform: rotate(90deg) !important;
+  animation-delay: 1.3s !important;
+}
+
+.connection-8 {
+  height: 70px !important;
+  top: 55% !important;
+  left: 90% !important;
+  transform: rotate(-20deg) !important;
+  animation-delay: 2.7s !important;
+}
+
+/* Animated Background */
+.dna-helix::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: 
+    radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 50% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 25% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 45%),
+    radial-gradient(circle at 75% 45%, rgba(16, 185, 129, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 65% 75%, rgba(139, 92, 246, 0.08) 0%, transparent 40%) !important;
+  animation: backgroundPulse 8s infinite ease-in-out !important;
+  pointer-events: none !important;
+}
+
+/* Content overlays */
+.medical-animation-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  flex: 1 !important;
+}
+
+.sidebar-title-text {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9) !important;
+  letter-spacing: -0.02em !important;
+  position: relative !important;
+  z-index: 15 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #9ca3af !important;
+  cursor: pointer !important;
+  padding: 10px !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 15 !important;
+  backdrop-filter: blur(15px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #374151 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* DEFINITE WORKING ANIMATIONS */
+@keyframes floatBlue {
+  0% { 
+    transform: translate(0, 0) scale(1) !important; 
+    opacity: 0.8 !important; 
+  }
+  25% { 
+    transform: translate(15px, -12px) scale(1.3) !important; 
+    opacity: 1 !important; 
+  }
+  50% { 
+    transform: translate(-8px, 18px) scale(0.9) !important; 
+    opacity: 0.9 !important; 
+  }
+  75% { 
+    transform: translate(12px, 8px) scale(1.1) !important; 
+    opacity: 0.95 !important; 
+  }
+  100% { 
+    transform: translate(0, 0) scale(1) !important; 
+    opacity: 0.8 !important; 
+  }
+}
+
+@keyframes floatGreen {
+  0% { 
+    transform: translate(0, 0) rotate(0deg) scale(1) !important; 
+    opacity: 0.9 !important; 
+  }
+  30% { 
+    transform: translate(-12px, 10px) rotate(90deg) scale(1.4) !important; 
+    opacity: 1 !important; 
+  }
+  60% { 
+    transform: translate(16px, -14px) rotate(180deg) scale(0.7) !important; 
+    opacity: 0.8 !important; 
+  }
+  80% { 
+    transform: translate(-6px, -4px) rotate(270deg) scale(1.2) !important; 
+    opacity: 0.95 !important; 
+  }
+  100% { 
+    transform: translate(0, 0) rotate(360deg) scale(1) !important; 
+    opacity: 0.9 !important; 
+  }
+}
+
+@keyframes floatPurple {
+  0% { 
+    transform: translate(0, 0) scale(1) rotate(0deg) !important; 
+    opacity: 0.7 !important; 
+  }
+  20% { 
+    transform: translate(14px, 16px) scale(1.5) rotate(45deg) !important; 
+    opacity: 1 !important; 
+  }
+  40% { 
+    transform: translate(-16px, -10px) scale(0.6) rotate(90deg) !important; 
+    opacity: 0.85 !important; 
+  }
+  70% { 
+    transform: translate(10px, -18px) scale(1.3) rotate(180deg) !important; 
+    opacity: 1 !important; 
+  }
+  90% { 
+    transform: translate(-4px, 12px) scale(0.8) rotate(270deg) !important; 
+    opacity: 0.8 !important; 
+  }
+  100% { 
+    transform: translate(0, 0) scale(1) rotate(360deg) !important; 
+    opacity: 0.7 !important; 
+  }
+}
+
+@keyframes floatMicro {
+  0% { 
+    transform: translate(0, 0) scale(1) !important; 
+    opacity: 0.6 !important; 
+  }
+  15% { 
+    transform: translate(-14px, -16px) scale(1.6) !important; 
+    opacity: 0.9 !important; 
+  }
+  35% { 
+    transform: translate(20px, 6px) scale(0.4) !important; 
+    opacity: 1 !important; 
+  }
+  55% { 
+    transform: translate(-10px, 16px) scale(1.4) !important; 
+    opacity: 0.8 !important; 
+  }
+  75% { 
+    transform: translate(16px, -8px) scale(0.7) !important; 
+    opacity: 0.95 !important; 
+  }
+  100% { 
+    transform: translate(0, 0) scale(1) !important; 
+    opacity: 0.6 !important; 
+  }
+}
+
+@keyframes connectionFlow {
+  0% { 
+    opacity: 0.3 !important; 
+    transform: scaleY(1) scaleX(1) !important; 
+  }
+  50% { 
+    opacity: 0.8 !important; 
+    transform: scaleY(1.4) scaleX(1.2) !important; 
+  }
+  100% { 
+    opacity: 0.3 !important; 
+    transform: scaleY(1) scaleX(1) !important; 
+  }
+}
+
+@keyframes backgroundPulse {
+  0% { opacity: 1 !important; }
+  33% { opacity: 0.7 !important; }
+  66% { opacity: 0.9 !important; }
+  100% { opacity: 1 !important; }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .sidebar-header {
+    min-height: 80px !important;
+    padding: 16px !important;
+  }
+  
+  .sidebar-title-text {
+    font-size: 16px !important;
+    padding: 6px 12px !important;
+  }
+  
+  .close-btn {
+    padding: 8px !important;
+  }
+  
+  .strand-base { width: 6px !important; height: 6px !important; }
+  .strand-complement { width: 5px !important; height: 5px !important; }
+  .strand-connector { width: 4px !important; height: 4px !important; }
+  .strand-micro { width: 3px !important; height: 3px !important; }
+  
+  .connection-1 { height: 35px !important; }
+  .connection-2 { height: 40px !important; }
+  .connection-3 { height: 30px !important; }
+  .connection-4 { height: 38px !important; }
+  .connection-5 { height: 25px !important; }
+  .connection-6 { height: 45px !important; }
+  .connection-7 { height: 20px !important; }
+  .connection-8 { height: 50px !important; }
+}
+/* ==========================================
+   AIRY CONTENT AREA
+   ========================================== */
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-tertiary);
+}
+
+/* ==========================================
+   LIGHT ACTION CARD
+   ========================================== */
+
+.action-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.action-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-btn.secondary {
+  background: var(--bg-tertiary);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.action-btn.secondary:hover {
+  background: var(--bg-secondary);
+  border-color: var(--text-lighter);
+}
+
+/* ==========================================
+   ENHANCED AI MODEL SELECTOR CARD
+   ========================================== */
+
+.model-selector-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.model-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.model-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.model-toggle.active {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--medical-primary);
+}
+
+.model-toggle.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.toggle-icon {
+  color: var(--medical-primary);
+  display: flex;
+  align-items: center;
+}
+
+.toggle-label {
+  flex-grow: 1;
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--medical-text);
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--bg-tertiary);
+  border-radius: 20px;
+  position: relative;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-light);
+  border-radius: 50%;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.model-toggle.active .switch-thumb {
+  transform: translateX(16px);
+  background: var(--medical-primary);
+}
+
+.model-toggle:hover .switch-thumb {
+  background: var(--medical-secondary);
+}
+
+/* ==========================================
+   COMPACT QUICK STATS CARD with Stylized Overlay
+   ========================================== */
+
+.stats-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+
+.stat-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: scale(1.03);
+}
+
+.stat-icon {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  padding: 8px;
+  color: white;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-item:hover .stat-icon {
+  background: linear-gradient(135deg, var(--medical-secondary), var(--medical-accent));
+  box-shadow: var(--shadow-md);
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Tooltip overlay */
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-shadow: var(--shadow-md);
+  font-size: 10px;
+  color: var(--medical-text);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.stat-item:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* Optional little arrow under tooltip */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: var(--bg-card) transparent transparent transparent;
+}
+
+/* ==========================================
+   SOFT PROGRESS CARD
+   ========================================== */
+
+.progress-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(6, 182, 212, 0.03));
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.progress-details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* ==========================================
+   CLEAN SESSION LIST CARD
+   ========================================== */
+
+.sessions-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-top: auto;
+}
+
+.session-list {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.session-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.session-item.active {
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.session-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.session-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-preview {
+  font-size: 10px;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-time {
+  font-size: 9px;
+  color: var(--text-lighter);
+  margin-top: 2px;
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.session-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.5;
+  color: var(--text-light);
+}
+
+.session-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  opacity: 1;
+  color: #ef4444;
+}
+
+.analysis-badge {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-light);
+}
+
+.empty-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.empty-subtext {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* ==========================================
+   ULTRA LIGHT FOOTER
+   ========================================== */
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 10px;
+  color: var(--text-lighter);
+  font-weight: 400;
+}
+
+/* ==========================================
+   MINIMAL SCROLLBAR
+   ========================================== */
+
+.sidebar-content::-webkit-scrollbar,
+.session-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-track,
+.session-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb,
+.session-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover,
+.session-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-lighter);
+}
+
+/* ==========================================
+   ICON SIZING
+   ========================================== */
+
+.w-3 {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.w-4 {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.w-5 {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+.spinning {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 280px;
+  }
+  
+  .sidebar-content {
+    padding: 20px 16px;
+    gap: 20px;
+  }
+  
+  .action-card,
+  .model-selector-card,
+  .stats-card,
+  .progress-card,
+  .sessions-card {
+    padding: 16px;
+  }
+  
+  .action-btn {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
+  .model-toggle {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .session-list {
+    max-height: 150px;
+  }
+
+  /* Mobile DNA Animation adjustments - Full Header Coverage */
+  .sidebar-header {
+    min-height: 70px;
+    padding: 16px;
+  }
+  
+  .dna-helix {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .sidebar-title-text {
+    font-size: 16px;
+    padding: 3px 6px;
+  }
+  
+  .strand-base { width: 3px; height: 3px; }
+  .strand-complement { width: 2.5px; height: 2.5px; }
+  .strand-connector { width: 1.5px; height: 1.5px; }
+  .strand-micro { width: 1px; height: 1px; }
+  
+  /* Reduce connection line heights for mobile */
+  .connection-1 { height: 20px; }
+  .connection-2 { height: 25px; }
+  .connection-3 { height: 18px; }
+  .connection-4 { height: 28px; }
+  .connection-5 { height: 20px; }
+  .connection-6 { height: 22px; }
+  .connection-7 { height: 16px; }
+  .connection-8 { height: 26px; }
+}

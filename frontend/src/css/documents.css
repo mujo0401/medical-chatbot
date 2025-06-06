@@ -1,0 +1,815 @@
+/* src/css/documents.css */
+
+/* Medical Theme Documents Styles */
+
+/* Documents Header */
+.documents-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+  border-radius: 20px;
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  position: relative;
+}
+
+.documents-header::before {
+  content: '📋';
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  font-size: 24px;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.documents-header h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--medical-text);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.documents-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Medical Upload Zone */
+.upload-zone {
+  border: 3px dashed rgba(59, 130, 246, 0.3);
+  border-radius: 24px;
+  padding: 60px 40px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(16, 185, 129, 0.02));
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary), var(--medical-accent));
+  border-radius: 24px 24px 0 0;
+  opacity: 0.5;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: rgba(59, 130, 246, 0.6);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.08));
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+}
+
+.upload-zone:hover::before,
+.upload-zone.drag-over::before {
+  opacity: 1;
+  animation: medicalGradient 2s ease infinite;
+}
+
+/* Upload zone disabled state */
+.upload-zone:disabled,
+.upload-zone.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.upload-icon {
+  width: 56px;
+  height: 56px;
+  color: var(--medical-primary);
+  margin: 0 auto 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-zone p {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--medical-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upload-zone p::before {
+  content: '';
+  font-size: 16px;
+}
+
+.upload-zone small {
+  color: var(--medical-text-light);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Upload Progress Indicator */
+.upload-progress-container {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.upload-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.upload-progress-item {
+  margin-bottom: 8px;
+}
+
+.upload-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upload-progress-filename {
+  font-size: 14px;
+}
+
+.upload-progress-status {
+  font-size: 12px;
+}
+
+.upload-progress-status.completed {
+  color: #10b981;
+}
+
+.upload-progress-status.failed {
+  color: #f87171;
+}
+
+.upload-progress-status.uploading {
+  color: #6b7280;
+}
+
+.upload-progress-error {
+  font-size: 12px;
+  color: #f87171;
+  margin-top: 2px;
+}
+
+/* Upload Error Container */
+.upload-error-container {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #f87171;
+  background-color: rgba(248, 113, 113, 0.1);
+}
+
+.upload-error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.upload-error-item {
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.upload-error-dismiss {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f87171;
+  color: white;
+  cursor: pointer;
+}
+
+.upload-error-dismiss:hover {
+  background-color: #ef4444;
+}
+
+/* Medical Selection Controls */
+.selection-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.selection-controls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary));
+  border-radius: 16px 16px 0 0;
+}
+
+.selection-info {
+  font-size: 14px;
+  color: var(--medical-text-light);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selection-info::before {
+  content: '✅';
+  font-size: 12px;
+}
+
+/* Medical Azure Validation Status */
+.azure-validation-status {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.azure-validation-status::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.azure-validation-status.success {
+  border-color: var(--medical-success);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+  color: #065f46;
+}
+
+.azure-validation-status.success::before {
+  background: linear-gradient(90deg, var(--medical-success), #059669);
+}
+
+.azure-validation-status.success::after {
+  content: '';
+  font-size: 16px;
+}
+
+.azure-validation-status.warning {
+  border-color: var(--medical-warning);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+  color: #92400e;
+}
+
+.azure-validation-status.warning::before {
+  background: linear-gradient(90deg, var(--medical-warning), #e97d0e);
+}
+
+.azure-validation-status.warning::after {
+  content: '⚠️';
+  font-size: 16px;
+}
+
+.azure-validation-status.error {
+  border-color: var(--medical-error);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+  color: #991b1b;
+}
+
+.azure-validation-status.error::before {
+  background: linear-gradient(90deg, var(--medical-error), #dc2626);
+}
+
+.azure-validation-status.error::after {
+  content: '❌';
+  font-size: 16px;
+}
+
+.azure-validation-details {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--medical-text-light);
+  display: flex;
+  gap: 16px;
+  font-weight: 500;
+}
+
+/* Medical Documents List */
+.documents-list {
+  margin-bottom: 32px;
+}
+
+.no-documents {
+  text-align: center;
+  padding: 80px 40px;
+  color: var(--medical-text-light);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(16, 185, 129, 0.03));
+  border-radius: 20px;
+  border: 2px dashed rgba(59, 130, 246, 0.2);
+}
+
+.no-documents::before {
+  content: '📁';
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.no-documents p {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: var(--medical-text);
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.document-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--medical-primary), var(--medical-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.document-item:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+}
+
+.document-item:hover::before {
+  opacity: 1;
+}
+
+.document-item.selected {
+  border-color: var(--medical-primary);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.05));
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
+}
+
+.document-item.selected::before {
+  opacity: 1;
+  width: 6px;
+}
+
+.document-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  font-size: 24px;
+  position: relative;
+}
+
+.document-icon::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+}
+
+.document-info {
+  flex: 1;
+}
+
+.document-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--medical-text);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.document-name::before {
+  content: '';
+  font-size: 14px;
+}
+
+.document-meta {
+  font-size: 12px;
+  color: var(--medical-text-light);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.document-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.document-status {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Delete Document Button */
+.delete-document-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ef4444; /* red */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.delete-document-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
+/* Wrapper for document-specific actions (e.g., delete icon) */
+.document-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Medical Training Controls */
+.training-controls {
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.03));
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.training-controls::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 24px;
+  font-size: 20px;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.training-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.selected-info {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--medical-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-info::before {
+  content: '';
+  font-size: 14px;
+}
+
+.training-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Medical Cost Badge */
+.azure-cost-badge {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.azure-cost-badge::before {
+  content: '💰';
+  font-size: 10px;
+}
+
+/* Medical Validation Loading Spinner */
+.validation-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--medical-primary);
+}
+
+.validation-spinner::before {
+  content: '🔄';
+  font-size: 16px;
+  animation: spin 2s linear infinite;
+}
+
+/* Spinning animation for loading states */
+.spinning {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Medical Billing Tooltip */
+.azure-billing-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 220px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.azure-billing-tooltip::before {
+  content: '💼';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.azure-billing-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 24px;
+  border: 8px solid transparent;
+  border-top-color: #1f2937;
+}
+
+.billing-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.billing-tooltip-row {
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.billing-tooltip-separator {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #4b5563;
+}
+
+/* Button States */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  color: white;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--medical-text);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.btn-azure {
+  background: linear-gradient(135deg, #0078d4, #106ebe);
+  color: white;
+  border: none;
+}
+
+.btn-azure:disabled {
+  background: #9ca3af;
+}
+
+/* Medical gradient animation */
+@keyframes medicalGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Responsive Medical Documents */
+@media (max-width: 768px) {
+  .documents-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+  }
+  
+  .documents-actions {
+    justify-content: center;
+  }
+  
+  .training-info {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .training-buttons {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+  
+  .azure-billing-tooltip {
+    position: fixed;
+    bottom: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: normal;
+    max-width: 90vw;
+  }
+  
+  .azure-billing-tooltip::after {
+    display: none;
+  }
+  
+  .selection-controls {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .document-item {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .document-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .upload-zone {
+    padding: 40px 20px;
+  }
+
+  .btn {
+    padding: 14px 18px;
+    font-size: 16px;
+  }
+}
+
+/* Additional styles for improved UX */
+.upload-zone.processing {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.document-item.duplicate {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.validation-details-expanded {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* Focus states for accessibility */
+.btn:focus,
+.upload-zone:focus,
+.document-item:focus {
+  outline: 2px solid var(--medical-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .document-item {
+    border-width: 3px;
+  }
+  
+  .upload-zone {
+    border-width: 4px;
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+}

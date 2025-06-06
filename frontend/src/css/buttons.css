@@ -1,0 +1,385 @@
+/* Medical Theme Button Styles */
+
+/* Base Button Styles */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: var(--medical-text);
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: all 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+/* Medical Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  color: white;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  position: relative;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+  border-radius: 16px 16px 0 0;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* Medical Secondary Button */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  color: var(--medical-primary);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Medical Azure Button */
+.btn-azure {
+  background: linear-gradient(135deg, #0078d4, var(--medical-secondary));
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 120, 212, 0.3);
+  border: 1px solid rgba(0, 120, 212, 0.2);
+  position: relative;
+}
+
+.btn-azure::after {
+  content: '☁️';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.btn-azure:hover:not(:disabled) {
+  background: linear-gradient(135deg, #106ebe, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 120, 212, 0.4);
+}
+
+.btn-azure:active {
+  transform: translateY(0);
+}
+
+/* Medical Success Button */
+.btn-success {
+  background: linear-gradient(135deg, var(--medical-success), #059669);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+/* Medical Warning Button */
+.btn-warning {
+  background: linear-gradient(135deg, var(--medical-warning), #f97316);
+  color: white;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e97d0e, #ea580c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+}
+
+/* Medical Error Button */
+.btn-error {
+  background: linear-gradient(135deg, var(--medical-error), #dc2626);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-error:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Disabled Button States */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  background: #9ca3af !important;
+  color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+.btn:disabled::before {
+  display: none;
+}
+
+/* Medical Button with Icon */
+.btn-icon {
+  padding: 12px;
+  min-width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+.btn-icon.btn-primary {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-accent));
+}
+
+.btn-icon.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--medical-primary);
+}
+
+/* Medical Floating Action Button */
+.btn-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  color: white;
+  border: none;
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.btn-fab:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5);
+}
+
+.btn-fab::before {
+  content: '⚕️';
+  font-size: 24px;
+}
+
+/* Medical Button Groups */
+.btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-group .btn {
+  border-radius: 12px;
+}
+
+.btn-group .btn:first-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.btn-group .btn:last-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.btn-group .btn:not(:first-child):not(:last-child) {
+  border-radius: 4px;
+}
+
+/* Medical Toggle Button */
+.btn-toggle {
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  color: var(--medical-text-light);
+}
+
+.btn-toggle.active {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  color: white;
+  border-color: var(--medical-primary);
+}
+
+.btn-toggle:hover:not(:disabled) {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Medical Link Button */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--medical-primary);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+  text-decoration-color: var(--medical-primary);
+  color: #2563eb;
+  transform: none;
+}
+
+/* Medical Button Loading State */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: white;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Medical Ripple Effect */
+.btn-ripple {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.btn:active .btn-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  to {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Medical Size Variants */
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 12px;
+  gap: 6px;
+}
+
+.btn-lg {
+  padding: 18px 24px;
+  font-size: 16px;
+  border-radius: 20px;
+  gap: 16px;
+}
+
+.btn-xl {
+  padding: 24px 32px;
+  font-size: 18px;
+  border-radius: 24px;
+  gap: 20px;
+}
+
+/* Medical Button Focus States */
+.btn:focus-visible {
+  outline: 2px solid var(--medical-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive Medical Buttons */
+@media (max-width: 768px) {
+  .btn {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+    border-radius: 12px !important;
+  }
+  
+  .btn-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
+  }
+}

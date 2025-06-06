@@ -1,0 +1,568 @@
+/* Medical Theme Utilities & Animations */
+
+/* ==========================================
+   MEDICAL UTILITY CLASSES
+   ========================================== */
+
+/* Medical Colors */
+.medical-primary { color: var(--medical-primary) !important; }
+.medical-secondary { color: var(--medical-secondary) !important; }
+.medical-accent { color: var(--medical-accent) !important; }
+.medical-success { color: var(--medical-success) !important; }
+.medical-warning { color: var(--medical-warning) !important; }
+.medical-error { color: var(--medical-error) !important; }
+.medical-text { color: var(--medical-text) !important; }
+.medical-text-light { color: var(--medical-text-light) !important; }
+
+/* Medical Background Colors */
+.medical-bg-primary { background-color: var(--medical-primary) !important; }
+.medical-bg-secondary { background-color: var(--medical-secondary) !important; }
+.medical-bg-accent { background-color: var(--medical-accent) !important; }
+.medical-bg-light { background-color: var(--medical-light) !important; }
+.medical-bg-white { background-color: var(--medical-white) !important; }
+
+/* Medical Background Gradients */
+.medical-gradient-primary {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary)) !important;
+}
+
+.medical-gradient-secondary {
+  background: linear-gradient(135deg, var(--medical-secondary), var(--medical-accent)) !important;
+}
+
+.medical-gradient-light {
+  background: linear-gradient(135deg, var(--medical-light), var(--medical-white)) !important;
+}
+
+.medical-gradient-subtle {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05), 
+    rgba(16, 185, 129, 0.05)
+  ) !important;
+}
+
+/* Medical Borders */
+.medical-border { border: 2px solid var(--medical-border) !important; }
+.medical-border-primary { border: 2px solid var(--medical-primary) !important; }
+.medical-border-secondary { border: 2px solid var(--medical-secondary) !important; }
+.medical-border-radius { border-radius: 16px !important; }
+.medical-border-radius-lg { border-radius: 24px !important; }
+.medical-border-radius-xl { border-radius: 32px !important; }
+
+/* Medical Shadows */
+.medical-shadow {
+  box-shadow: 0 8px 32px var(--medical-shadow) !important;
+}
+
+.medical-shadow-lg {
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15) !important;
+}
+
+.medical-shadow-primary {
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2) !important;
+}
+
+.medical-shadow-secondary {
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Medical Glass Effect */
+.medical-glass {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.medical-glass-subtle {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ==========================================
+   MEDICAL ANIMATIONS
+   ========================================== */
+
+/* Medical Pulse Animation */
+.medical-pulse {
+  animation: medicalPulse 2s ease-in-out infinite;
+}
+
+@keyframes medicalPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.6;
+  }
+}
+
+/* Medical Heartbeat Animation */
+.medical-heartbeat {
+  animation: medicalHeartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes medicalHeartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+/* Medical Breathing Animation */
+.medical-breathing {
+  animation: medicalBreathing 4s ease-in-out infinite;
+}
+
+@keyframes medicalBreathing {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+/* Medical Float Animation */
+.medical-float {
+  animation: medicalFloat 6s ease-in-out infinite;
+}
+
+@keyframes medicalFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Medical Glow Animation */
+.medical-glow {
+  animation: medicalGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes medicalGlow {
+  from {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+/* Medical Shimmer Animation */
+.medical-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.medical-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: medicalShimmer 2s infinite;
+}
+
+@keyframes medicalShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Medical Spin Animation */
+.medical-spin {
+  animation: medicalSpin 2s linear infinite;
+}
+
+@keyframes medicalSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Medical Bounce Animation */
+.medical-bounce {
+  animation: medicalBounce 2s infinite;
+}
+
+@keyframes medicalBounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* ==========================================
+   MEDICAL STATUS INDICATORS
+   ========================================== */
+
+/* Medical Status Dots */
+.medical-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.medical-status-dot.online {
+  background: var(--medical-success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  animation: medicalPulse 2s infinite;
+}
+
+.medical-status-dot.offline {
+  background: var(--medical-error);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.medical-status-dot.warning {
+  background: var(--medical-warning);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  animation: medicalPulse 2s infinite;
+}
+
+.medical-status-dot.processing {
+  background: var(--medical-primary);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  animation: medicalSpin 1s linear infinite;
+}
+
+/* Medical Progress Bars */
+.medical-progress {
+  width: 100%;
+  height: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.medical-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary));
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.medical-progress-animated .medical-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: medicalShimmer 2s infinite;
+}
+
+/* ==========================================
+   MEDICAL BADGES & PILLS
+   ========================================== */
+
+/* Medical Badge Base */
+.medical-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.medical-badge.primary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  color: var(--medical-primary);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.medical-badge.success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  color: var(--medical-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.medical-badge.warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+  color: var(--medical-warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.medical-badge.error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  color: var(--medical-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Medical Pills */
+.medical-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  color: var(--medical-primary);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.medical-pill:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* ==========================================
+   MEDICAL LOADING STATES
+   ========================================== */
+
+/* Medical Loading Spinner */
+.medical-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(59, 130, 246, 0.1);
+  border-top: 3px solid var(--medical-primary);
+  border-radius: 50%;
+  animation: medicalSpin 1s linear infinite;
+}
+
+.medical-spinner.lg {
+  width: 32px;
+  height: 32px;
+  border-width: 4px;
+}
+
+.medical-spinner.sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* Medical Loading Dots */
+.medical-loading-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.medical-loading-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--medical-primary);
+  border-radius: 50%;
+  animation: medicalDotBounce 1.4s ease-in-out infinite both;
+}
+
+.medical-loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.medical-loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes medicalDotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Medical Skeleton Loader */
+.medical-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 25%,
+    rgba(16, 185, 129, 0.1) 50%,
+    rgba(59, 130, 246, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: medicalSkeleton 2s infinite;
+  border-radius: 8px;
+}
+
+@keyframes medicalSkeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================
+   MEDICAL HOVER EFFECTS
+   ========================================== */
+
+/* Medical Hover Lift */
+.medical-hover-lift {
+  transition: all 0.3s ease;
+}
+
+.medical-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+}
+
+/* Medical Hover Glow */
+.medical-hover-glow {
+  transition: all 0.3s ease;
+}
+
+.medical-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Medical Hover Scale */
+.medical-hover-scale {
+  transition: all 0.3s ease;
+}
+
+.medical-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* ==========================================
+   MEDICAL ACCESSIBILITY
+   ========================================== */
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .medical-border,
+  .medical-badge,
+  .medical-pill {
+    border-width: 2px;
+  }
+  
+  .medical-shadow,
+  .medical-shadow-lg {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .medical-pulse,
+  .medical-heartbeat,
+  .medical-breathing,
+  .medical-float,
+  .medical-glow,
+  .medical-shimmer,
+  .medical-spin,
+  .medical-bounce,
+  .medical-spinner {
+    animation: none;
+  }
+  
+  .medical-hover-lift,
+  .medical-hover-scale {
+    transform: none;
+  }
+}
+
+/* ==========================================
+   MEDICAL PRINT STYLES
+   ========================================== */
+
+@media print {
+  .medical-gradient-primary,
+  .medical-gradient-secondary {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .medical-shadow,
+  .medical-shadow-lg {
+    box-shadow: none !important;
+  }
+  
+  .medical-glass {
+    background: white !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* ==========================================
+   MEDICAL FOCUS STATES
+   ========================================== */
+
+/* Medical Focus Ring */
+.medical-focus:focus-visible {
+  outline: 2px solid var(--medical-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Medical Focus Within */
+.medical-focus-within:focus-within {
+  border-color: var(--medical-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ==========================================
+   MEDICAL DARK MODE SUPPORT
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .medical-theme-dark {
+    --medical-light: #1e293b;
+    --medical-bg: rgba(30, 41, 59, 0.95);
+    --medical-white: #334155;
+    --medical-text: #f1f5f9;
+    --medical-text-light: #94a3b8;
+  }
+  
+  .medical-glass {
+    background: rgba(30, 41, 59, 0.95) !important;
+  }
+  
+  .medical-skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.2) 25%,
+      rgba(16, 185, 129, 0.2) 50%,
+      rgba(59, 130, 246, 0.2) 75%
+    );
+  }
+}

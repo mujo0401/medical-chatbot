@@ -1,0 +1,449 @@
+/* Medical Theme Messages Container */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
+}
+
+.messages-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary), var(--medical-accent));
+  background-size: 200% 100%;
+  animation: medicalGradient 4s ease infinite;
+  z-index: 10;
+}
+
+/* Medical Message Styling */
+.message {
+  display: flex;
+  gap: 20px;
+  max-width: 100%;
+  animation: messageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.user .message-avatar {
+  order: 2;
+}
+
+.message.user .message-content {
+  order: 1;
+}
+
+/* Medical Message Avatar */
+.message-avatar {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.bot-avatar {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  color: white;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.bot-avatar::before {
+  content: '🩺';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 12px;
+  background: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--medical-primary);
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, var(--medical-accent), var(--medical-primary));
+  color: white;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  font-weight: 700;
+}
+
+.user-avatar::before {
+  content: '👤';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 10px;
+  background: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--medical-accent);
+}
+
+.enhanced-avatar {
+  position: relative;
+  overflow: visible;
+}
+
+.avatar-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+  animation: medicalPulse 2s infinite;
+  z-index: -1;
+}
+
+/* Medical Message Content */
+.message-content {
+  max-width: 70%;
+  padding: 24px 28px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.message-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary), var(--medical-accent));
+  background-size: 200% 100%;
+  animation: medicalGradient 3s ease infinite;
+  border-radius: 28px 28px 0 0;
+}
+
+.message.user .message-content {
+  background: linear-gradient(135deg, var(--medical-primary), #1d4ed8);
+  color: white;
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+}
+
+.message.user .message-content::before {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+}
+
+.message-content p {
+  margin: 0;
+  line-height: 1.7;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--medical-text);
+}
+
+.message.user .message-content p {
+  color: white;
+}
+
+/* Medical Message Decorations */
+.message-decorations {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.decoration-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--medical-primary), transparent);
+}
+
+.message.user .decoration-line {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+.decoration-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.decoration-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--medical-primary);
+  border-radius: 50%;
+  display: inline-block;
+  animation: medicalDotPulse 1.5s ease-in-out infinite;
+}
+
+.message.user .decoration-dots span {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.decoration-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.decoration-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Medical Message Time */
+.message-time {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 8px;
+  font-weight: 600;
+  color: var(--medical-text-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-time::before {
+  content: '🕐';
+  font-size: 10px;
+}
+
+.message.user .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.enhanced-time {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Medical Loading Message */
+.loading-message .message-content {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  animation: medicalBreathing 2s ease-in-out infinite;
+}
+
+.loading-message .avatar-pulse {
+  animation: medicalLoadingPulse 1s ease-in-out infinite;
+}
+
+.loading-bubble {
+  position: relative;
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--medical-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.loading-decoration {
+  margin-top: 12px;
+}
+
+.loading-wave {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--medical-primary), transparent);
+  background-size: 50% 100%;
+  animation: medicalWave 2s linear infinite;
+  border-radius: 2px;
+}
+
+/* Medical Message Animations */
+@keyframes messageSlideIn {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes medicalPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+}
+
+@keyframes medicalDotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+@keyframes medicalBreathing {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    transform: scale(1.01);
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+  }
+}
+
+@keyframes medicalLoadingPulse {
+  0%, 100% {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+    transform: scale(1);
+  }
+  50% {
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent);
+    transform: scale(1.2);
+  }
+}
+
+@keyframes medicalWave {
+  0% {
+    background-position: -50% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}
+
+@keyframes medicalGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Medical System Messages */
+.message.system .message-content {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+  border-color: rgba(16, 185, 129, 0.2);
+  font-style: italic;
+}
+
+.message.system .message-content::before {
+  background: linear-gradient(90deg, var(--medical-success), #059669);
+}
+
+.message.system .message-content p {
+  color: var(--medical-success);
+  font-weight: 600;
+}
+
+/* Medical Error Messages */
+.message.error .message-content {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.message.error .message-content::before {
+  background: linear-gradient(90deg, var(--medical-error), #dc2626);
+}
+
+.message.error .message-content p {
+  color: var(--medical-error);
+  font-weight: 600;
+}
+
+/* Enhanced Medical Message States */
+.enhanced-message {
+  transition: all 0.3s ease;
+}
+
+.enhanced-message:hover {
+  transform: translateY(-2px);
+}
+
+.enhanced-message:hover .message-content {
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+}
+
+.enhanced-content {
+  position: relative;
+}
+
+.medical-bubble {
+  border-radius: 28px;
+}
+
+/* Medical Responsive Messages */
+@media (max-width: 768px) {
+  .messages-container {
+    padding: 20px 16px;
+    gap: 20px;
+  }
+  
+  .message-content {
+    max-width: 85%;
+    padding: 20px;
+    border-radius: 24px;
+  }
+  
+  .message-content p {
+    font-size: 15px;
+  }
+  
+  .message-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .message {
+    gap: 16px;
+  }
+}
+
+/* Medical Custom Scrollbar for Messages */
+.messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #059669);
+}

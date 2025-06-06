@@ -1,0 +1,28 @@
+name: chatbot-training-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+      - azureml-core==1.46.0
+      - azureml-dataprep[pandas]
+      - azureml-train
+      - azureml-mlflow
+      - openai
+      - numpy
+      - pandas
+      - scikit-learn
+      - transformers
+      - torch
+      - tqdm
+      - pyyaml
+      - requests
+      - flask
+      - gunicorn
+      - pymongo
+      - azure-identity
+      - azure-storage-blob
+      - python-dotenv
+      - pandasql

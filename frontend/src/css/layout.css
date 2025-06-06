@@ -1,0 +1,463 @@
+/* Refined Medical Theme Layout Styles */
+
+/* Updated CSS Variables */
+:root {
+  --medical-primary: #3b82f6;
+  --medical-secondary: #10b981;
+  --medical-accent: #8b5cf6;
+  --medical-text: #1f2937;
+  --medical-text-light: #6b7280;
+  --medical-text-lighter: #9ca3af;
+  --medical-bg: #ffffff;
+  --medical-bg-light: #f8fafc;
+  --medical-bg-lighter: #f1f5f9;
+  --medical-border: #e2e8f0;
+  --medical-border-light: #f1f5f9;
+  --medical-success: #10b981;
+  --medical-warning: #f59e0b;
+  --medical-error: #ef4444;
+}
+
+/* Main App Container */
+.app-container {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); /* Simplified gradient */
+}
+
+/* Refined Medical Themed Sidebar */
+.sidebar {
+  width: 280px; /* Reduced from 320px */
+  background: var(--medical-bg);
+  border-right: 1px solid var(--medical-border); /* Lighter border */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  left: 0;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary));
+  opacity: 0.6; /* More subtle */
+}
+
+.sidebar.closed {
+  width: 0;
+  overflow: hidden;
+}
+
+/* Refined Medical Sidebar Header */
+.sidebar-header {
+  padding: 16px 20px; /* Reduced padding */
+  border-bottom: 1px solid var(--medical-border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--medical-bg); /* Simplified background */
+  position: relative;
+}
+
+.sidebar-title {
+  font-size: 16px; /* Reduced font size */
+  font-weight: 600;
+  color: var(--medical-text);
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-title::before {
+  content: '';
+  font-size: 14px; /* Smaller icon */
+}
+
+.close-btn {
+  background: var(--medical-bg-lighter);
+  border: none;
+  color: var(--medical-text-light);
+  cursor: pointer;
+  padding: 6px; /* Smaller padding */
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: var(--medical-border);
+  color: var(--medical-text);
+}
+
+/* Refined Medical Sidebar Content */
+.sidebar-content {
+  padding: 16px 20px; /* Reduced padding */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Reduced gap */
+  background: var(--medical-bg-light); /* Lighter background */
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.main-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px; /* Thinner line */
+  background: linear-gradient(90deg, transparent, var(--medical-primary), transparent);
+  opacity: 0.5; /* More subtle */
+}
+
+/* Refined Medical Header */
+.header {
+  padding: 16px 24px; /* Reduced padding */
+  border-bottom: 1px solid var(--medical-border-light); /* Lighter border */
+  background: var(--medical-bg);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Reduced gap */
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--medical-border), transparent);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Reduced gap */
+}
+
+.menu-btn {
+  background: var(--medical-bg-lighter);
+  border: none;
+  color: var(--medical-text-light);
+  cursor: pointer;
+  padding: 8px; /* Reduced padding */
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-btn:hover {
+  background: var(--medical-border);
+  color: var(--medical-text);
+}
+
+.header-text h1 {
+  font-size: 20px; /* Slightly reduced */
+  font-weight: 600; /* Lighter weight */
+  margin: 0;
+  color: var(--medical-text);
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Reduced gap */
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Reduced gap */
+}
+
+.status-text {
+  font-size: 13px; /* Reduced font size */
+  color: var(--medical-text-light);
+  font-weight: 500;
+}
+
+.online-status {
+  font-size: 10px; /* Reduced font size */
+  padding: 4px 8px; /* Reduced padding */
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Reduced gap */
+}
+
+.online-status.online {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--medical-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.online-status.online::before {
+  content: '●'; /* Simplified indicator */
+  font-size: 6px;
+  color: var(--medical-success);
+}
+
+.online-status.offline {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--medical-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.online-status.offline::before {
+  content: '●'; /* Simplified indicator */
+  font-size: 6px;
+  color: var(--medical-error);
+}
+
+/* Refined Medical Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 2px; /* Reduced gap */
+  background: var(--medical-bg-lighter);
+  padding: 4px; /* Reduced padding */
+  border-radius: 12px;
+  border: 1px solid var(--medical-border-light);
+  position: relative;
+}
+
+.tab-navigation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--medical-border);
+  border-radius: 12px 12px 0 0;
+  opacity: 0.5;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reduced gap */
+  padding: 8px 14px; /* Reduced padding */
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px; /* Reduced font size */
+  font-weight: 500; /* Lighter weight */
+  color: var(--medical-text-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  background: var(--medical-bg);
+  color: var(--medical-text);
+}
+
+.tab-btn.active {
+  background: var(--medical-bg);
+  color: var(--medical-primary);
+  border: 1px solid var(--medical-border);
+}
+
+.tab-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--medical-primary);
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-badge {
+  background: var(--medical-primary);
+  color: white;
+  font-size: 9px; /* Smaller badge */
+  font-weight: 600;
+  padding: 1px 4px; /* Smaller padding */
+  border-radius: 6px;
+  min-width: 14px; /* Smaller minimum width */
+  text-align: center;
+}
+
+.training-indicator {
+  position: absolute;
+  top: 4px; /* Adjusted position */
+  right: 4px; /* Adjusted position */
+  width: 6px; /* Smaller indicator */
+  height: 6px;
+  background: var(--medical-primary);
+  border-radius: 50%;
+  animation: subtlePulse 2s infinite;
+}
+
+/* Refined Medical Tab Content */
+.tab-content {
+  flex: 1;
+  padding: 24px; /* Reduced padding */
+  overflow-y: auto;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(248, 250, 252, 0.05) 100%);
+  position: relative;
+}
+
+.chat-tab {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: relative;
+}
+
+/* Refined Model Selector */
+.model-selector {
+  margin-top: 12px; /* Reduced margin */
+  padding: 14px; /* Reduced padding */
+  background: var(--medical-bg);
+  border-radius: 12px;
+  border: 1px solid var(--medical-border-light);
+}
+
+.selector-label {
+  font-size: 11px; /* Reduced font size */
+  color: var(--medical-text-light);
+  margin-bottom: 8px; /* Reduced margin */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Reduced gap */
+  padding: 10px 12px; /* Reduced padding */
+  font-size: 12px; /* Reduced font size */
+  border: 1px solid var(--medical-border-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--medical-bg);
+  color: var(--medical-text);
+  font-weight: 500;
+  margin-bottom: 4px; /* Reduced margin */
+}
+
+.selector-btn:hover {
+  background: var(--medical-bg-lighter);
+  border-color: var(--medical-border);
+}
+
+.selector-btn.active {
+  background: var(--medical-primary);
+  color: white;
+  border-color: var(--medical-primary);
+}
+
+/* Refined Training Status in Sidebar */
+.sidebar-training-status {
+  margin-top: 12px; /* Reduced margin */
+  padding: 14px; /* Reduced padding */
+  background: var(--medical-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reduced gap */
+  font-size: 11px; /* Reduced font size */
+  font-weight: 600;
+  color: var(--medical-primary);
+  margin-bottom: 10px; /* Reduced margin */
+}
+
+.mini-progress-bar {
+  height: 4px; /* Reduced height */
+  background: var(--medical-bg-lighter);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px; /* Reduced margin */
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--medical-primary), var(--medical-secondary));
+  transition: width 0.3s ease;
+}
+
+.status-text {
+  font-size: 10px; /* Reduced font size */
+  color: var(--medical-text-lighter);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Refined animations */
+@keyframes subtlePulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Responsive adjustments for refined medical theme */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 260px; /* Even smaller on mobile */
+    position: absolute;
+    z-index: 1000;
+    height: 100%;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); /* Lighter shadow */
+  }
+  
+  .header-text h1 {
+    font-size: 16px; /* Smaller on mobile */
+  }
+  
+  .tab-navigation {
+    padding: 3px; /* Smaller padding */
+  }
+  
+  .tab-btn {
+    padding: 6px 10px; /* Smaller padding */
+    font-size: 11px; /* Smaller font */
+  }
+  
+  .tab-content {
+    padding: 16px; /* Reduced padding */
+  }
+}

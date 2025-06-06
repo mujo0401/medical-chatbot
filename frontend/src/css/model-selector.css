@@ -1,0 +1,48 @@
+/* Model Selector */
+.model-selector {
+  margin-top: 16px;
+}
+
+.selector-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.selector-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.6);
+  color: #475569;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  font-weight: 500;
+}
+
+.selector-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(4px);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.selector-btn.active {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
