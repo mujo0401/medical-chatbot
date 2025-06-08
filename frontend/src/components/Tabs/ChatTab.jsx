@@ -86,66 +86,6 @@ const Chat = ({
       {/* Connection Status */}
       {renderConnectionStatus()}
 
-      {/* Model Selector Header */}
-      <div className="model-selector-header" style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        backdropFilter: 'blur(10px)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Activity className="w-5 h-5" style={{ color: '#3b82f6' }} />
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
-              Medical AI Assistant
-            </div>
-            <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              Using {modelPreference.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} Model
-            </div>
-          </div>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ModelSelector
-            backendUrl={backendUrl}
-            onModelChange={handleModelChange}
-            showAdvanced={false}
-          />
-          
-          <button
-            onClick={() => setModelSelectorCollapsed(!modelSelectorCollapsed)}
-            style={{
-              padding: '8px',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#6b7280',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = '#f3f4f6';
-              e.target.style.color = '#374151';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = 'transparent';
-              e.target.style.color = '#6b7280';
-            }}
-            title={modelSelectorCollapsed ? 'Show Model Details' : 'Hide Model Details'}
-          >
-            {modelSelectorCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
 
       {/* Expanded Model Information Panel */}
       {!modelSelectorCollapsed && (
