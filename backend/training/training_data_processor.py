@@ -197,9 +197,9 @@ class TrainingDataProcessor:
         """Query the FAISS index for relevant chunks"""
         try:
             from config import MODELS_DIR
-            index_dir = MODELS_DIR / "indexes" / training_id
-            index_path = index_dir / "faiss.index"
-            metadata_path = index_dir / "chunks_metadata.pkl"
+            base_path = Path(MODELS_DIR) / "indexes" / training_id
+            index_path = base_path / "faiss.index"
+            metadata_path = base_path / "chunks_metadata.pkl"
             
             if not index_path.exists() or not metadata_path.exists():
                 logger.warning(f"Index or metadata not found for {training_id}")

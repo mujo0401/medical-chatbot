@@ -65,3 +65,56 @@ def init_db(db_path: str = 'chatbot.db'):
     except Exception as e:
         logger.error(f"Failed to initialize database schema: {e}")
         raise
+
+
+def get_db(db_path: str = 'chatbot.db'):
+    """Get a database connection."""
+    return sqlite3.connect(db_path)
+
+
+def get_documents_by_ids(conn, doc_ids):
+    """Get documents by their IDs."""
+    if not doc_ids:
+        return []
+        
+    cursor = conn.cursor()
+    placeholders = ','.join(['?'] * len(doc_ids))
+    cursor.execute(
+        f"SELECT id, filename, original_name, file_path, file_type, file_size, uploaded_at "
+        f"FROM uploaded_documents WHERE id IN ({placeholders})",
+        doc_ids
+    )
+    
+    # Convert to list of dictionaries
+    columns = ["id", "filename", "original_name", "file_path", "file_type", "file_size", "uploaded_at"]
+    result = []
+    for row in cursor.fetchall():
+        result.append(dict(zip(columns, row)))
+    
+    return result
+
+
+def get_training_history():
+    """Get training history from the database."""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(
+            "SELECT * FROM training_history ORDER BY started_at DESC"
+        )
+        
+        # Get column names
+        columns = [description[0] for description in cursor.description]
+        
+        # Convert to list of dictionaries
+        result = []
+        for row in cursor.fetchall():
+            result.append(dict(zip(columns, row)))
+            
+        return result
+    except Exception as e:
+        logger.error(f"Error getting training history: {e}")
+        return []
+    finally:
+        conn.close()

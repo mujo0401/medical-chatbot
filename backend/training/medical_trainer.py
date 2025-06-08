@@ -1,6 +1,6 @@
 """
 Enhanced Medical Chatbot Trainer - orchestrates all training and inference components,
-with real Azure ML integration, proper error handling, and no fallback behavior.
+with support for multiple model types including EleutherAI and hybrid approaches.
 """
 
 import os
@@ -20,11 +20,15 @@ load_dotenv()
 # Import from parent config
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from config import MODEL_PREFERENCE, MODELS_DIR, OPENAI_API_KEY
+from config import (
+    MODEL_PREFERENCE, MODELS_DIR, OPENAI_API_KEY, LOCAL_BASE_MODEL_TYPE,
+    ELEUTHER_MODEL_NAME, ENABLE_HYBRID_MODELS, get_model_config, get_system_prompt
+)
 
 # Import our enhanced components
 from clients.azure_ml_client import AzureMLClient
 from clients.openai_client import OpenAIClient
+from clients.eleuther_model_client import EleutherModelClient
 from .local_model_trainer import LocalModelTrainer
 from .training_data_processor import TrainingDataProcessor
 from .training_status_tracker import TrainingStatusTracker, AzureJobMonitor, TrainingProgressCallback
@@ -37,13 +41,13 @@ logger = logging.getLogger(__name__)
 
 
 class MedicalChatbotTrainer:
-    """Enhanced orchestrator for medical chatbot training, indexing, and inference with real Azure ML integration."""
+    """Enhanced orchestrator for medical chatbot training, indexing, and inference with multi-model support."""
 
     def __init__(self):
         self.model_preference = MODEL_PREFERENCE
         self._initialization_errors = []
 
-        logger.info("Initializing MedicalChatbotTrainer...")
+        logger.info("Initializing Enhanced Medical Chatbot Trainer...")
 
         # Initialize all components with proper error handling
         self._init_components()
@@ -55,27 +59,17 @@ class MedicalChatbotTrainer:
             for error in self._initialization_errors:
                 logger.warning(f"   - {error}")
         else:
-            logger.info("MedicalChatbotTrainer initialized successfully")
+            logger.info("Enhanced Medical Chatbot Trainer initialized successfully")
 
     def _init_components(self):
         """Initialize components with enhanced error handling and validation."""
+        
+        # Enhanced Azure ML client
         try:
-            # Enhanced Azure ML client
             logger.info("Initializing Azure ML client...")
             self.azure_ml_client = AzureMLClient()
             if self.azure_ml_client.is_available():
                 logger.info("Azure ML client initialized and connected")
-
-                # Test additional Azure services
-                if hasattr(self.azure_ml_client, 'consumption_client') and self.azure_ml_client.consumption_client:
-                    logger.info("Azure Consumption API available")
-                else:
-                    logger.warning("Azure Consumption API not available - install azure-mgmt-consumption")
-
-                if hasattr(self.azure_ml_client, 'monitor_client') and self.azure_ml_client.monitor_client:
-                    logger.info("Azure Monitor API available")
-                else:
-                    logger.warning("Azure Monitor API not available - install azure-mgmt-monitor")
             else:
                 logger.warning("Azure ML client not available")
                 self._initialization_errors.append("Azure ML client not available")
@@ -109,18 +103,31 @@ class MedicalChatbotTrainer:
             self.openai_client = None
             self._initialization_errors.append(f"OpenAI initialization failed: {str(e)}")
 
-        # Local model trainer
+        # EleutherAI client
         try:
-            logger.info("Initializing local model trainer...")
-            self.local_trainer = LocalModelTrainer()
-            if self.local_trainer.is_available():
-                logger.info("Local model trainer initialized")
+            logger.info("Initializing EleutherAI client...")
+            self.eleuther_client = EleutherModelClient(model_name=ELEUTHER_MODEL_NAME)
+            if self.eleuther_client.is_available():
+                logger.info("EleutherAI client initialized")
             else:
-                logger.warning("Local model trainer not fully available")
+                logger.warning("EleutherAI client not fully available")
         except Exception as e:
-            logger.error(f"Failed to initialize local trainer: {e}")
+            logger.error(f"Failed to initialize EleutherAI client: {e}")
+            self.eleuther_client = None
+            self._initialization_errors.append(f"EleutherAI initialization failed: {str(e)}")
+
+        # Enhanced local model trainer
+        try:
+            logger.info(f"Initializing enhanced local model trainer (base: {LOCAL_BASE_MODEL_TYPE})...")
+            self.local_trainer = LocalModelTrainer(base_model_type=LOCAL_BASE_MODEL_TYPE)
+            if self.local_trainer.is_available():
+                logger.info("Enhanced local model trainer initialized")
+            else:
+                logger.warning("Enhanced local model trainer not fully available")
+        except Exception as e:
+            logger.error(f"Failed to initialize enhanced local trainer: {e}")
             self.local_trainer = None
-            self._initialization_errors.append(f"Local trainer initialization failed: {str(e)}")
+            self._initialization_errors.append(f"Enhanced local trainer initialization failed: {str(e)}")
 
         # Data processor: chunking + embedding + FAISS index
         try:
@@ -152,18 +159,19 @@ class MedicalChatbotTrainer:
             self.azure_monitor = None
             self._initialization_errors.append(f"Status tracker initialization failed: {str(e)}")
 
-        # Response generator that uses local model, embeddings, or OpenAI
+        # Enhanced response generator that uses all model types
         try:
-            logger.info("Initializing response generator...")
+            logger.info("Initializing enhanced response generator...")
             self.response_generator = ModelResponseGenerator(
-                self.openai_client,
-                self.local_trainer
+                openai_client=self.openai_client,
+                local_trainer=self.local_trainer,
+                eleuther_client=self.eleuther_client
             )
-            logger.info("Response generator initialized")
+            logger.info("Enhanced response generator initialized")
         except Exception as e:
-            logger.error(f"Failed to initialize response generator: {e}")
+            logger.error(f"Failed to initialize enhanced response generator: {e}")
             self.response_generator = None
-            self._initialization_errors.append(f"Response generator initialization failed: {str(e)}")
+            self._initialization_errors.append(f"Enhanced response generator initialization failed: {str(e)}")
 
     def _setup_integrations(self):
         """Set up inter-component links and integrations."""
@@ -187,12 +195,14 @@ class MedicalChatbotTrainer:
             "azure_training": bool(self.azure_ml_client and self.azure_ml_client.is_available()),
             "local_training": bool(self.local_trainer and self.local_trainer.is_available()),
             "openai_inference": bool(self.openai_client and self.openai_client.is_available()),
+            "eleuther_inference": bool(self.eleuther_client and self.eleuther_client.is_available()),
+            "hybrid_models": bool(ENABLE_HYBRID_MODELS and self.response_generator),
             "data_processing": bool(self.data_processor),
             "status_tracking": bool(self.status_tracker),
             "azure_monitoring": bool(self.azure_monitor),
         }
 
-        logger.info("Trainer Capabilities:")
+        logger.info("Enhanced Trainer Capabilities:")
         for capability, available in capabilities.items():
             status = "AVAILABLE" if available else "NOT AVAILABLE"
             logger.info(f"   {capability.replace('_', ' ').title()}: {status}")
@@ -201,10 +211,18 @@ class MedicalChatbotTrainer:
         minimal_requirements = ["data_processing", "status_tracking"]
         self.is_functional = all(capabilities.get(req, False) for req in minimal_requirements)
 
+        # Check if at least one inference model is available
+        inference_models = ["openai_inference", "eleuther_inference", "local_training"]
+        has_inference_model = any(capabilities.get(model, False) for model in inference_models)
+        
+        if not has_inference_model:
+            logger.warning("No inference models available")
+            self._initialization_errors.append("No inference models available")
+
         if not self.is_functional:
             logger.error("Trainer is not functional - missing critical components")
         else:
-            logger.info("Trainer is functional")
+            logger.info("Enhanced trainer is functional")
 
     def is_available(self) -> bool:
         """Check if the trainer is available and functional."""
@@ -216,15 +234,28 @@ class MedicalChatbotTrainer:
         document_name: str,
         use_azure: bool = False,
         compute_target: Optional[str] = None,
+        base_model_type: Optional[str] = None,
     ) -> str:
         """
-        Enhanced training orchestrator with comprehensive validation and error handling.
-        Returns a training_id that's used for retrieving index later.
+        Enhanced training orchestrator with support for different base model types.
+        
+        Args:
+            texts: List of text documents to train on
+            document_name: Name for the training session
+            use_azure: Whether to use Azure ML for training
+            compute_target: Azure compute target (if using Azure)
+            base_model_type: Base model type ("dialogpt" or "eleuther")
+        
+        Returns:
+            training_id that's used for retrieving index later
         """
         if not self.is_available():
             raise RuntimeError("Trainer is not available - check initialization errors")
 
         training_id = str(uuid.uuid4())
+        
+        # Use provided base model type or default
+        model_type = base_model_type or LOCAL_BASE_MODEL_TYPE
 
         # Validate inputs
         if not texts or not all(isinstance(text, str) and text.strip() for text in texts):
@@ -234,8 +265,9 @@ class MedicalChatbotTrainer:
             raise ValueError("Document name is required")
 
         try:
-            logger.info(f"Starting training session: {training_id}")
+            logger.info(f"Starting enhanced training session: {training_id}")
             logger.info(f"   Documents: {document_name}")
+            logger.info(f"   Base model type: {model_type}")
             platform_used = "Azure ML" if use_azure else "Local"
             logger.info(f"   Platform: {platform_used}")
             logger.info(f"   Text samples: {len(texts)}")
@@ -291,11 +323,11 @@ class MedicalChatbotTrainer:
             # Choose training method: Azure vs. local
             if use_azure:
                 return self._fine_tune_on_azure(
-                    index_path, metadata_path, training_id, progress_callback, compute_target
+                    index_path, metadata_path, training_id, progress_callback, compute_target, model_type
                 )
             else:
                 return self._fine_tune_locally(
-                    index_path, metadata_path, training_id, progress_callback
+                    index_path, metadata_path, training_id, progress_callback, model_type
                 )
 
         except Exception as e:
@@ -305,14 +337,30 @@ class MedicalChatbotTrainer:
             raise
 
     def _fine_tune_locally(
-        self, index_path: str, metadata_path: str, training_id: str, progress_cb: Any
+        self, 
+        index_path: str, 
+        metadata_path: str, 
+        training_id: str, 
+        progress_cb: Any,
+        base_model_type: str
     ) -> str:
-        """Enhanced local fine-tuning with better error handling."""
+        """Enhanced local fine-tuning with support for different base model types."""
         try:
-            if not self.local_trainer or not self.local_trainer.is_available():
-                raise RuntimeError("Local trainer not available")
+            logger.info(f"Starting local fine-tuning for {training_id} with base model: {base_model_type}")
 
-            logger.info(f"Starting local fine-tuning for {training_id}")
+            # Create trainer with specified base model type
+            if base_model_type != LOCAL_BASE_MODEL_TYPE:
+                logger.info(f"Creating trainer with base model type: {base_model_type}")
+                local_trainer = LocalModelTrainer(
+                    training_id=training_id,
+                    base_model_type=base_model_type
+                )
+            else:
+                local_trainer = self.local_trainer
+                local_trainer.training_id = training_id
+
+            if not local_trainer or not local_trainer.is_available():
+                raise RuntimeError("Enhanced local trainer not available")
 
             # Load chunk metadata
             try:
@@ -322,22 +370,18 @@ class MedicalChatbotTrainer:
             except Exception as e:
                 raise RuntimeError(f"Failed to load chunk metadata: {e}")
 
-            # Convert chunks to a HF Dataset
-            try:
-                from datasets import Dataset
-                dataset = Dataset.from_dict({"text": chunks})
-                logger.info(f"Created HuggingFace dataset with {len(dataset)} samples")
-            except Exception as e:
-                raise RuntimeError(f"Failed to create dataset: {e}")
-
             # Begin local training
-            progress_cb(True, 40, "Starting local fine-tuning...")
+            progress_cb(True, 40, f"Starting local fine-tuning with {base_model_type}...")
 
             try:
-                model_dir = self.local_trainer.train_model(dataset, training_id, progress_cb)
+                model_dir = local_trainer.train_model(metadata_path, training_id, progress_cb)
                 logger.info(f"Local model training completed: {model_dir}")
             except Exception as e:
                 raise RuntimeError(f"Local training failed: {e}")
+
+            # Update the main trainer's local trainer if we used a different one
+            if base_model_type != LOCAL_BASE_MODEL_TYPE:
+                self.local_trainer = local_trainer
 
             # Mark training as complete
             self.status_tracker.complete_training(training_id)
@@ -350,15 +394,22 @@ class MedicalChatbotTrainer:
             raise
 
     def _fine_tune_on_azure(
-        self, index_path: str, metadata_path: str, training_id: str, progress_cb: Any, compute_target: str
+        self, 
+        index_path: str, 
+        metadata_path: str, 
+        training_id: str, 
+        progress_cb: Any, 
+        compute_target: str,
+        base_model_type: str
     ) -> str:
-        """Enhanced Azure ML training with real API integration."""
+        """Enhanced Azure ML training with support for different base model types."""
         if not (self.azure_ml_client and self.azure_ml_client.is_available()):
             raise RuntimeError("Azure ML not available or not configured")
 
         try:
             logger.info(f"Starting Azure ML training for {training_id}")
             logger.info(f"   Compute target: {compute_target}")
+            logger.info(f"   Base model type: {base_model_type}")
 
             # Validate compute target exists and is ready
             try:
@@ -387,10 +438,10 @@ class MedicalChatbotTrainer:
 
             progress_cb(True, 50, "Registering data assets in Azure ML...")
 
-            # ── REGISTER THE INDEX AND METADATA AS AZURE ML DATA ASSETS ──
+            # Register data assets
             try:
                 from azure.ai.ml.entities import Data
-
+                
                 # Register metadata file
                 metadata_data = Data(
                     path=str(remote_metadata),
@@ -398,8 +449,10 @@ class MedicalChatbotTrainer:
                     name=f"chunks_metadata_{training_id}",
                     version="1"
                 )
+                logger.info(f"Creating metadata Data asset for: {remote_metadata}")
                 registered_metadata = self.azure_ml_client.ml_client.data.create_or_update(metadata_data)
-                metadata_uri = registered_metadata.id  # This is the Azure ML URI
+                metadata_uri = registered_metadata.id
+                logger.info(f"Registered metadata asset: {metadata_uri}")
 
                 # Register FAISS index file
                 index_data = Data(
@@ -408,13 +461,14 @@ class MedicalChatbotTrainer:
                     name=f"faiss_index_{training_id}",
                     version="1"
                 )
+                logger.info(f"Creating FAISS index Data asset for: {remote_index}")
                 registered_index = self.azure_ml_client.ml_client.data.create_or_update(index_data)
-                index_uri = registered_index.id  # This is the Azure ML URI
-
-                logger.info(f"Registered metadata asset: {metadata_uri}")
+                index_uri = registered_index.id
                 logger.info(f"Registered index asset: {index_uri}")
+                
             except Exception as e:
-                raise RuntimeError(f"Failed to register data assets: {e}")
+                logger.error(f"Failed to register data assets: {e}")
+                raise RuntimeError(f"Data registration failed: {e}")
 
             progress_cb(True, 70, "Preparing Azure training script...")
 
@@ -425,7 +479,6 @@ import sys
 import os
 import logging
 from pathlib import Path
-from datasets import Dataset
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -437,9 +490,10 @@ sys.path.append(str(project_root))
 
 def main():
     try:
-        logger.info("Starting Azure ML training...")
+        logger.info("Starting Azure ML enhanced training...")
         logger.info(f"Training ID: {training_id}")
         logger.info(f"Compute Target: {compute_target}")
+        logger.info(f"Base Model Type: {base_model_type}")
 
         # Load chunks metadata
         metadata_file = "{remote_metadata.name}"
@@ -450,24 +504,20 @@ def main():
 
         logger.info(f"Loaded {{len(chunks)}} chunks for training")
 
-        # Convert to HF Dataset
-        dataset = Dataset.from_dict({{'text': chunks}})
-        logger.info(f"Created dataset with {{len(dataset)}} samples")
-
-        # Initialize and run local trainer (adapted for Azure environment)
+        # Begin model training with specified base model type
         try:
-            from training.local_model_trainer import LocalModelTrainer
-            trainer = LocalModelTrainer()
+            from training.enhanced_local_model_trainer import LocalModelTrainer
+            trainer = LocalModelTrainer(base_model_type="{base_model_type}")
 
-            logger.info("Starting model training...")
+            logger.info(f"Starting model training with {{trainer.base_model_type}} base model...")
             model_dir = trainer.train_model(
-                dataset,
+                metadata_file,
                 "{training_id}",
                 lambda training, progress, message: logger.info(f"Progress: {{progress}}% - {{message}}")
             )
 
             logger.info(f"Training completed! Model saved to: {{model_dir}}")
-            logger.info("Azure ML training job finished successfully")
+            logger.info("Azure ML enhanced training job finished successfully")
 
         except Exception as e:
             logger.error(f"Training error: {{e}}")
@@ -493,12 +543,12 @@ if __name__ == "__main__":
 
             progress_cb(True, 90, "Submitting job to Azure ML...")
 
-            # Submit via enhanced AzureMLClient, passing data asset URIs
+            # Submit via enhanced AzureMLClient
             try:
                 job_name = self.azure_ml_client.submit_training_job(
-                    script_path=None,             # Git-based code will be used instead of local script
-                    index_path=index_uri,         # Pass the registered Data Asset URI
-                    metadata_path=metadata_uri,   # Pass the registered Data Asset URI
+                    script_path=str(script_path),
+                    index_path=str(remote_index),
+                    metadata_path=str(remote_metadata),
                     compute_target=compute_target,
                     training_id=training_id,
                 )
@@ -523,7 +573,6 @@ if __name__ == "__main__":
                 except Exception as e:
                     logger.warning(f"Failed to start job monitoring: {e}")
 
-            # Do not complete training here – let the monitor handle status updates
             return training_id
 
         except Exception as e:
@@ -537,7 +586,7 @@ if __name__ == "__main__":
         preferred_model: str = None
     ) -> Dict[str, Any]:
         """
-        Enhanced response generation with better error handling and context retrieval.
+        Enhanced response generation with multi-model support.
         """
         if not self.is_available():
             return {
@@ -559,7 +608,7 @@ if __name__ == "__main__":
                 logger.warning("No session ID provided, generated new one")
 
             user_query = message.strip()
-            logger.info(f"Generating response for query: {user_query[:100]}...")
+            logger.info(f"Generating response for query: {user_query[:100]}... (model: {preferred_model or self.model_preference})")
 
             # Fetch conversation history from the database
             try:
@@ -590,13 +639,13 @@ if __name__ == "__main__":
                 logger.warning(f"Error fetching conversation history: {e}")
                 history = []
 
-            # Always define relevant_chunks so it exists even if FAISS is not queried or fails
+            # Get relevant context from FAISS index
             training_id = None
             relevant_chunks: List[str] = []
+            context = None
 
             if self.status_tracker:
                 try:
-                    # Use the correct method name on your status tracker
                     training_id = self.status_tracker.get_latest_training_name()
                     if training_id and self.data_processor and hasattr(self.data_processor, 'query_index'):
                         logger.info(f"Querying index for training_id: {training_id}")
@@ -604,197 +653,107 @@ if __name__ == "__main__":
                             user_query, training_id, top_k=5
                         )
                         logger.info(f"Retrieved {len(relevant_chunks)} relevant chunks")
+                        
+                        if relevant_chunks:
+                            context = "\n\n".join(relevant_chunks)
                 except Exception as e:
                     logger.warning(f"FAISS query failed: {e}")
-                    # relevant_chunks remains [] by default
 
-            # Build context from retrieved chunks
-            chunk_context = ""
-            if relevant_chunks:
-                chunk_context = "\n\n".join(relevant_chunks)
-                logger.info(f"Built context from {len(relevant_chunks)} chunks ({len(chunk_context)} chars)")
-
-            # Create source_documents list for frontend display
-            source_documents = []
-            for idx, chunk in enumerate(relevant_chunks):
-                chunk_id = f"{training_id}_chunk_{idx}" if training_id else f"chunk_{idx}"
-                chunk_name = f"{training_id} (chunk #{idx + 1})" if training_id else f"Document chunk #{idx + 1}"
-                source_documents.append({
-                    "id": chunk_id,
-                    "name": chunk_name,
-                    "preview": chunk[:200] + "..." if len(chunk) > 200 else chunk
-                })
-
-            # Build the conversation for the LLM
-            system_prompt = (
-                "You are a helpful medical assistant. "
-                "Use the provided document context to give accurate, helpful responses. "
-                "If no relevant context is provided, answer based on general medical knowledge. "
-                "Keep responses clear and under 200 words. "
-                "Always recommend consulting healthcare professionals for specific medical advice."
-            )
-
-            # Construct the user prompt with context
-            if chunk_context:
-                user_prompt = f"Context from uploaded documents:\n{chunk_context}\n\nUser question: {user_query}"
-                logger.info("Using document context for response generation")
-            else:
-                user_prompt = f"User question: {user_query}"
-                logger.info("Using general knowledge for response generation")
-
-            # Build full message chain
-            full_messages = [{"role": "system", "content": system_prompt}]
-
-            # Add conversation history (limit to last 10 exchanges to avoid token limits)
-            recent_history = history[-20:] if len(history) > 20 else history
-            for turn in recent_history:
-                full_messages.append({"role": turn["role"], "content": turn["content"]})
-
-            # Add current user message
-            full_messages.append({"role": "user", "content": user_prompt})
-
-            # Generate response using preferred model
-            choice = preferred_model or self.model_preference
-            assistant_text = ""
-
-            try:
-                logger.info(f"Generating response using: {choice}")
-
-                if choice == "local" and self.local_trainer and self.local_trainer.is_available():
-                    assistant_text = self.local_trainer.generate_with_local_model(
-                        full_messages, session_id
+            # Use enhanced response generator
+            if self.response_generator:
+                try:
+                    response_result = self.response_generator.generate_response(
+                        message=user_query,
+                        session_id=session_id,
+                        preferred_model=preferred_model,
+                        context=context
                     )
-                    logger.info("Generated response using local model")
-                elif choice == "openai" and self.openai_client and self.openai_client.is_available():
-                    assistant_text = self.openai_client.generate_response(
-                        full_messages, session_id
-                    )
-                    logger.info("Generated response using OpenAI")
-                else:
-                    # Try fallback models
-                    if self.openai_client and self.openai_client.is_available():
-                        assistant_text = self.openai_client.generate_response(
-                            full_messages, session_id
-                        )
-                        logger.info("Generated response using OpenAI (fallback)")
-                    elif self.local_trainer and self.local_trainer.is_available():
-                        assistant_text = self.local_trainer.generate_with_local_model(
-                            full_messages, session_id
-                        )
-                        logger.info("Generated response using local model (fallback)")
-                    else:
-                        assistant_text = (
-                            "I'm sorry, but no language models are currently available. "
-                            "Please check the system configuration or try again later."
-                        )
-                        logger.error("No models available for response generation")
-
-            except Exception as e:
-                logger.error(f"Model generation failed: {e}")
-                assistant_text = (
-                    "I encountered an error while generating a response. "
-                    "Please try rephrasing your question or try again later."
-                )
-
-            # Ensure we have a valid response
-            if not assistant_text or not assistant_text.strip():
-                assistant_text = "I'm sorry, I couldn't generate a proper response. Please try rephrasing your question."
-                logger.warning("Empty response generated, using fallback")
-
-            # Return structured response
-            response = {
-                "reply": assistant_text.strip(),
-                "source_documents": source_documents,
-                "model_used": choice,
-                "context_used": bool(chunk_context),
-                "session_id": session_id
+                    
+                    # Create source_documents list for frontend display
+                    source_documents = []
+                    if relevant_chunks:
+                        for idx, chunk in enumerate(relevant_chunks):
+                            chunk_id = f"{training_id}_chunk_{idx}" if training_id else f"chunk_{idx}"
+                            chunk_name = f"{training_id} (chunk #{idx + 1})" if training_id else f"Document chunk #{idx + 1}"
+                            source_documents.append({
+                                "id": chunk_id,
+                                "name": chunk_name,
+                                "preview": chunk[:200] + "..." if len(chunk) > 200 else chunk
+                            })
+                    
+                    # Enhance response with additional info
+                    response_result.update({
+                        "source_documents": source_documents,
+                        "session_id": session_id,
+                        "training_id": training_id,
+                        "context_used": bool(context),
+                        "chunks_retrieved": len(relevant_chunks)
+                    })
+                    
+                    logger.info(f"Enhanced response generated successfully ({len(response_result.get('reply', ''))} chars, "
+                              f"model: {response_result.get('model_used', 'unknown')}, "
+                              f"confidence: {response_result.get('confidence', 0):.2f})")
+                    
+                    return response_result
+                    
+                except Exception as e:
+                    logger.error(f"Enhanced response generator failed: {e}")
+                    # Fall back to basic response
+                    
+            # Fallback response generation
+            logger.warning("Using fallback response generation")
+            return {
+                "reply": "I'm here to help with your medical questions. Could you please rephrase your question?",
+                "source_documents": [],
+                "model_used": "fallback",
+                "confidence": 0.5,
+                "session_id": session_id,
+                "error": "Enhanced response generator not available"
             }
-
-            logger.info(f"Response generated successfully ({len(assistant_text)} chars)")
-            return response
 
         except Exception as e:
             logger.error(f"Error in generate_response: {e}")
             return {
                 "reply": "I'm sorry, I encountered an unexpected error. Please try again.",
                 "source_documents": [],
+                "model_used": "error",
+                "confidence": 0.0,
+                "session_id": session_id,
                 "error": str(e)
             }
 
-    def get_training_status(self) -> Dict[str, Any]:
-        """Get current training status with enhanced details."""
+    def switch_model_preference(self, new_preference: str):
+        """Switch the preferred model dynamically."""
         try:
-            if hasattr(self, "_status") and self._status:
-                return self._status
-
-            if self.status_tracker:
-                status = self.status_tracker.get_status()
-
-                # Enhance with Azure job info if available
-                if (status.get("is_training") and
-                    self.azure_monitor and
-                    hasattr(self.azure_monitor, 'get_active_jobs')):
-
-                    try:
-                        active_jobs = self.azure_monitor.get_active_jobs()
-                        if active_jobs:
-                            latest_job = active_jobs[0]
-                            if self.azure_ml_client:
-                                azure_status = self.azure_ml_client.get_job_status(latest_job)
-                                if azure_status:
-                                    status.update({
-                                        "azure_job_name": azure_status["name"],
-                                        "azure_job_status": azure_status["status"],
-                                        "azure_compute": azure_status.get("compute_target"),
-                                    })
-                    except Exception as e:
-                        logger.warning(f"Could not get Azure job status: {e}")
-
-                return status
-
-            return {"is_training": False, "progress": 0, "status_message": "Status tracker not available"}
-
+            if self.response_generator:
+                self.response_generator.set_model_preference(new_preference)
+                self.model_preference = new_preference
+                logger.info(f"Model preference switched to: {new_preference}")
+            else:
+                raise RuntimeError("Response generator not available")
         except Exception as e:
-            logger.error(f"Error getting training status: {e}")
-            return {"is_training": False, "progress": 0, "status_message": f"Error: {str(e)}"}
-
-    def get_azure_job_status(self, job_name: str) -> Optional[Dict[str, Any]]:
-        """Get status of a specific Azure ML job."""
-        if not (self.azure_ml_client and self.azure_ml_client.is_available()):
-            return None
-        return self.azure_ml_client.get_job_status(job_name)
-
-    def get_azure_job_logs(self, job_name: str) -> List[str]:
-        """Get logs from Azure ML job."""
-        if not (self.azure_ml_client and self.azure_ml_client.is_available()):
-            return ["Azure ML not available"]
-        return self.azure_ml_client.get_job_logs(job_name)
-
-    def get_billing_information(self) -> Dict[str, Any]:
-        """Get Azure billing info."""
-        if not (self.azure_ml_client and self.azure_ml_client.is_available()):
-            raise RuntimeError("Azure ML not available")
-        return self.azure_ml_client.get_billing_information()
+            logger.error(f"Failed to switch model preference: {e}")
+            raise
 
     def get_available_models(self) -> Dict[str, Any]:
-        """Get available model information."""
-        return {
-            "local_model": self.local_trainer.get_model_info() if (self.local_trainer and self.local_trainer.is_available()) else {"available": False},
-            "openai": {"available": self.openai_client.is_available() if self.openai_client else False},
-            "azure_ml": {"available": self.azure_ml_client.is_available() if self.azure_ml_client else False},
-        }
+        """Get information about all available models."""
+        if self.response_generator:
+            return self.response_generator.get_available_models()
+        else:
+            return {
+                "error": "Response generator not available",
+                "available_models": {}
+            }
 
-    def set_model_preference(self, preference: str):
-        """Set the preferred model for response generation."""
-        valid_preferences = ["local", "openai", "azure"]
-        if preference not in valid_preferences:
-            raise ValueError(f"Invalid preference. Must be one of: {valid_preferences}")
-
-        self.model_preference = preference
-        logger.info(f"Model preference updated to: {preference}")
-
-        if self.response_generator and hasattr(self.response_generator, 'set_model_preference'):
-            self.response_generator.set_model_preference(preference)
+    def get_model_health_status(self) -> Dict[str, Any]:
+        """Get health status of all models."""
+        if self.response_generator:
+            return self.response_generator.get_model_health_status()
+        else:
+            return {
+                "error": "Response generator not available",
+                "health_status": {}
+            }
 
     def get_system_status(self) -> Dict[str, Any]:
         """Return comprehensive system health overview."""
@@ -803,17 +762,24 @@ if __name__ == "__main__":
                 "azure_ml": {
                     "available": bool(self.azure_ml_client and self.azure_ml_client.is_available()),
                     "configured": bool(self.ml_client),
-                    "billing_available": bool(self.azure_ml_client and hasattr(self.azure_ml_client, 'consumption_client') and self.azure_ml_client.consumption_client),
-                    "monitoring_available": bool(self.azure_ml_client and hasattr(self.azure_ml_client, 'monitor_client') and self.azure_ml_client.monitor_client),
                 },
                 "openai": {
                     "available": bool(self.openai_client and self.openai_client.is_available()),
                     "configured": bool(OPENAI_API_KEY),
                 },
+                "eleuther": {
+                    "available": bool(self.eleuther_client and self.eleuther_client.is_available()),
+                    "model_name": ELEUTHER_MODEL_NAME,
+                },
                 "local_model": self.local_trainer.get_model_info() if (self.local_trainer and self.local_trainer.is_available()) else {"available": False},
+                "hybrid_models": {
+                    "enabled": ENABLE_HYBRID_MODELS,
+                    "available": bool(self.response_generator and ENABLE_HYBRID_MODELS),
+                },
                 "training": self.get_training_status(),
                 "data_processor": {"available": bool(self.data_processor)},
                 "status_tracker": {"available": bool(self.status_tracker)},
+                "model_preference": self.model_preference,
                 "initialization_errors": self._initialization_errors,
                 "is_functional": self.is_functional,
             }
@@ -827,7 +793,7 @@ if __name__ == "__main__":
     def cleanup(self):
         """Enhanced cleanup with proper resource management."""
         try:
-            logger.info("Starting trainer cleanup...")
+            logger.info("Starting enhanced trainer cleanup...")
 
             # Stop Azure job monitoring
             if hasattr(self, 'azure_monitor') and self.azure_monitor:
@@ -842,11 +808,18 @@ if __name__ == "__main__":
             # Clean up local trainer resources
             if hasattr(self, 'local_trainer') and self.local_trainer:
                 try:
-                    if hasattr(self.local_trainer, 'cleanup'):
-                        self.local_trainer.cleanup()
+                    self.local_trainer.cleanup()
                     logger.info("Local trainer cleaned up")
                 except Exception as e:
                     logger.warning(f"Error cleaning up local trainer: {e}")
+
+            # Clean up EleutherAI client resources
+            if hasattr(self, 'eleuther_client') and self.eleuther_client:
+                try:
+                    self.eleuther_client.cleanup()
+                    logger.info("EleutherAI client cleaned up")
+                except Exception as e:
+                    logger.warning(f"Error cleaning up EleutherAI client: {e}")
 
             # Clean up data processor resources
             if hasattr(self, 'data_processor') and self.data_processor:
@@ -857,7 +830,7 @@ if __name__ == "__main__":
                 except Exception as e:
                     logger.warning(f"Error cleaning up data processor: {e}")
 
-            logger.info("Trainer cleanup completed")
+            logger.info("Enhanced trainer cleanup completed")
 
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
@@ -872,6 +845,6 @@ if __name__ == "__main__":
 
 
 # Convenience function for backward compatibility
-def create_trainer() -> MedicalChatbotTrainer:
-    """Create and return a MedicalChatbotTrainer instance."""
+def create_enhanced_trainer() -> MedicalChatbotTrainer:
+    """Create and return an Enhanced Medical Chatbot Trainer instance."""
     return MedicalChatbotTrainer()

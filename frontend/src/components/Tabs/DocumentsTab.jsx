@@ -16,17 +16,12 @@ import {
   AlertCircle,
   Info,
   Loader,
-  Server,
-  Cloud,
-  Activity,
-  Shield,
-  Settings,
-  BarChart3,
-  Timer,
-  StopCircle,
-  Minimize2,
-  Maximize2,
 } from 'lucide-react';
+
+// Import training components and hook
+import { useTraining, useAzureValidation } from '../../hooks';
+import { TrainingMonitor, TrainingControls } from '../training';
+import ConnectionStatus from '../training/ConnectionStatus';
 
 // Helper function to format file size
 const formatFileSize = (bytes) => {
@@ -68,179 +63,36 @@ const DocumentsTab = ({
   onDocumentDeleted = () => {},
   backendConnected = false,
   modelStatus = null,
-  trainingStatus = { is_training: false },
   backendUrl = 'http://localhost:5000',
 }) => {
-  // State management
+  // Document management state
   const [dragOver, setDragOver] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
-  const [azureValidation, setAzureValidation] = useState(null);
-  const [azureBillingInfo, setAzureBillingInfo] = useState(null);
-  const [azureWorkspaceInfo, setAzureWorkspaceInfo] = useState(null);
-  const [showBillingTooltip, setShowBillingTooltip] = useState(false);
-  const [isValidatingAzure, setIsValidatingAzure] = useState(false);
   const [uploadErrors, setUploadErrors] = useState([]);
   const [activeUploads, setActiveUploads] = useState(new Set());
-  const [azureError, setAzureError] = useState(null);
-  const [validationPassed, setValidationPassed] = useState(false);
-  const [isTrainingRequesting, setIsTrainingRequesting] = useState(false);
-
-  // Training monitoring state
-  const [realTimeStatus, setRealTimeStatus] = useState({
-    is_training: false,
-    progress: 0,
-    status_message: 'Ready',
-    current_document: null,
-    start_time: null,
-    estimated_completion: null,
-    training_id: null,
-  });
-  const [azureJobs, setAzureJobs] = useState([]);
-  const [loadingAzureJobs, setLoadingAzureJobs] = useState(false);
-  const [trainingMetrics, setTrainingMetrics] = useState(null);
-  const [isTrainingMinimized, setIsTrainingMinimized] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
   const fileInputRef = useRef();
 
-  // Training status polling
+  // Use training hook
+  const trainingData = useTraining(backendUrl, backendConnected, modelStatus);
+
+  // Use stable Azure validation
+  const azureValidation = useAzureValidation(selectedDocuments, backendConnected, trainingData);
+
+  // Debug logging for selection changes (remove in production)
   useEffect(() => {
-    if (!backendConnected) return;
+    console.log('Document selection changed:', {
+      count: selectedDocuments.length,
+      documents: selectedDocuments,
+      backendConnected,
+      azureAvailable: trainingData.getAzureStatus().available,
+    });
+  }, [selectedDocuments, backendConnected, trainingData.getAzureStatus]);
 
-    const fetchTrainingStatus = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/training/status`);
-        if (res.ok) {
-          const data = await res.json();
-          setRealTimeStatus((prev) => ({
-            ...prev,
-            ...data,
-            start_time: data.start_time ? new Date(data.start_time) : prev.start_time,
-            estimated_completion: data.estimated_completion
-              ? new Date(data.estimated_completion)
-              : prev.estimated_completion,
-          }));
-        }
-      } catch (error) {
-        console.error('Failed to fetch training status:', error);
-      }
-    };
-
-    const fetchAzureJobs = async () => {
-      if (!getAzureStatus().available) return;
-      
-      setLoadingAzureJobs(true);
-      try {
-        const res = await fetch(`${backendUrl}/api/training/azure/jobs`);
-        if (res.ok) {
-          const data = await res.json();
-          setAzureJobs(
-            (data.jobs || []).map((job) => ({
-              ...job,
-              creation_time: job.creation_time ? new Date(job.creation_time) : null,
-              start_time: job.start_time ? new Date(job.start_time) : null,
-              end_time: job.end_time ? new Date(job.end_time) : null,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error('Failed to fetch Azure jobs:', error);
-      } finally {
-        setLoadingAzureJobs(false);
-      }
-    };
-
-    const fetchTrainingMetrics = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/training/metrics`);
-        if (res.ok) {
-          const data = await res.json();
-          setTrainingMetrics(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch training metrics:', error);
-      }
-    };
-
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/training/notifications`);
-        if (res.ok) {
-          const data = await res.json();
-          setNotifications(data.notifications || []);
-        }
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
-      }
-    };
-
-    // Initial fetch
-    fetchTrainingStatus();
-    fetchAzureJobs();
-    fetchTrainingMetrics();
-    fetchNotifications();
-
-    // Set up polling intervals
-    const statusInterval = setInterval(fetchTrainingStatus, 5000); // Every 5 seconds
-    const jobsInterval = setInterval(fetchAzureJobs, 15000); // Every 15 seconds
-    const metricsInterval = setInterval(fetchTrainingMetrics, 30000); // Every 30 seconds
-    const notifInterval = setInterval(fetchNotifications, 20000); // Every 20 seconds
-
-    return () => {
-      clearInterval(statusInterval);
-      clearInterval(jobsInterval);
-      clearInterval(metricsInterval);
-      clearInterval(notifInterval);
-    };
-  }, [backendConnected, backendUrl]);
-
-  // ————————————————————————————————
-  // Helper: Check Azure status based solely on backendConnected & modelStatus.azure
-  // ————————————————————————————————
-  const getAzureStatus = () => {
-    if (!backendConnected) {
-      return { available: false, reason: 'Backend not connected', type: 'connection' };
-    }
-    if (!modelStatus?.azure) {
-      return { available: false, reason: 'Azure status unknown', type: 'unknown' };
-    }
-    const azure = modelStatus.azure;
-    if (!azure.available) {
-      return {
-        available: false,
-        reason: azure.reason || 'Azure ML not available',
-        type: 'backend_unavailable',
-        help: azure.help,
-      };
-    }
-    if (!azure.sdk_installed) {
-      return { available: false, reason: 'Azure ML SDK not installed', type: 'sdk' };
-    }
-    if (!azure.configured) {
-      return { available: false, reason: 'Azure ML not configured', type: 'config' };
-    }
-    const hasWorkingComputeTargets =
-      azure.compute_targets &&
-      Array.isArray(azure.compute_targets) &&
-      azure.compute_targets.length > 0 &&
-      azure.compute_targets.some((target) => target.state === 'Succeeded');
-    if (!hasWorkingComputeTargets) {
-      return {
-        available: false,
-        reason: 'No working compute targets available',
-        type: 'compute',
-        help: 'Create or start a compute cluster in Azure ML Studio',
-      };
-    }
-    return { available: true, reason: null, type: 'available' };
-  };
-
-  // ————————————————————————————————
   // File validation function
-  // ————————————————————————————————
   const validateFile = (file) => {
     const errors = [];
     if (file.size > MAX_FILE_SIZE) {
@@ -264,9 +116,7 @@ const DocumentsTab = ({
     return errors;
   };
 
-  // ————————————————————————————————
   // Upload a single file with retry logic
-  // ————————————————————————————————
   const uploadSingleFile = async (file, retryAttempt = 0) => {
     const maxRetries = 2;
     const fileId = generateFileId(file);
@@ -339,9 +189,7 @@ const DocumentsTab = ({
     }
   };
 
-  // ————————————————————————————————
-  // Handle file selection / drag‐and‐drop → validate & upload
-  // ————————————————————————————————
+  // Handle file selection / drag-and-drop → validate & upload
   const handleFileUpload = async (files) => {
     if (!files || files.length === 0 || isProcessingUpload) return;
 
@@ -422,115 +270,7 @@ const DocumentsTab = ({
     }
   };
 
-  // ————————————————————————————————
-  // Azure validation: run whenever selectedDocuments changes, but only clear once selection is empty
-  // ————————————————————————————————
-  useEffect(() => {
-    // If no documents are selected, reset validation
-    if (selectedDocuments.length === 0) {
-      setAzureValidation(null);
-      setAzureError(null);
-      setValidationPassed(false);
-      return;
-    }
-
-    // If we have documents AND Azure is available, debounce & validate
-    if (backendConnected && getAzureStatus().available) {
-      const debounceTimer = setTimeout(() => {
-        validateAzureTraining();
-      }, 500);
-      return () => clearTimeout(debounceTimer);
-    }
-    // Otherwise, do NOT clear existing validation info
-  }, [selectedDocuments, backendConnected, modelStatus]);
-
-  // ————————————————————————————————
-  // Fetch Azure billing/workspace info whenever backendConnected & Azure is available
-  // ————————————————————————————————
-  useEffect(() => {
-    if (backendConnected && getAzureStatus().available) {
-      fetchAzureBillingInfo();
-      fetchAzureWorkspaceInfo();
-    }
-  }, [backendConnected, modelStatus]);
-
-  // ————————————————————————————————
-  // validateAzureTraining → POST /api/azure/validate-training
-  // ————————————————————————————————
-  const validateAzureTraining = async () => {
-    if (selectedDocuments.length === 0 || !getAzureStatus().available) return;
-
-    setIsValidatingAzure(true);
-    setAzureError(null);
-
-    try {
-      const response = await fetch(`${backendUrl}/api/azure/validate-training`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ document_ids: selectedDocuments }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setAzureValidation(data);
-        if (data.can_train) {
-          setValidationPassed(true);
-        }
-        setAzureError(null);
-      } else {
-        setAzureValidation(null);
-        setAzureError({
-          message: data.error || 'Validation failed',
-          help: data.help,
-          recommendation: data.recommendation,
-        });
-        setValidationPassed(false);
-      }
-    } catch (error) {
-      setAzureValidation(null);
-      setAzureError({
-        message: 'Failed to connect to Azure ML service',
-        help: 'Check your network connection and backend status',
-      });
-      setValidationPassed(false);
-    } finally {
-      setIsValidatingAzure(false);
-    }
-  };
-
-  // ————————————————————————————————
-  // fetchAzureBillingInfo → GET /api/azure/billing-info
-  // ————————————————————————————————
-  const fetchAzureBillingInfo = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/api/azure/billing-info`);
-      if (response.ok) {
-        const billingInfo = await response.json();
-        setAzureBillingInfo(billingInfo);
-      }
-    } catch (error) {
-      console.error('Failed to fetch Azure billing info:', error);
-    }
-  };
-
-  // ————————————————————————————————
-  // fetchAzureWorkspaceInfo → GET /api/training/azure/workspace-info
-  // ————————————————————————————————
-  const fetchAzureWorkspaceInfo = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/api/training/azure/workspace-info`);
-      if (response.ok) {
-        const workspaceInfo = await response.json();
-        setAzureWorkspaceInfo(workspaceInfo);
-      }
-    } catch (error) {
-      console.error('Failed to fetch Azure workspace info:', error);
-    }
-  };
-
-  // ————————————————————————————————
-  // clearAllDocuments → DELETE each document → then call onDocumentDeleted()
-  // ————————————————————————————————
+  // Clear all documents
   const clearAllDocuments = async () => {
     if (documents.length === 0) return;
     if (!window.confirm('Are you sure you want to delete ALL uploaded documents?')) {
@@ -549,75 +289,14 @@ const DocumentsTab = ({
     }
   };
 
-  // ————————————————————————————————
-  // fetchDocuments → call onDocumentUploaded() to refresh
-  // ————————————————————————————————
+  // Fetch documents
   const fetchDocuments = () => {
     onDocumentUploaded();
   };
 
-  // ————————————————————————————————
-  // startTraining → POST /api/train with use_azure flag
-  // ————————————————————————————————
-  const startTraining = async (useAzure = false) => {
-    if (selectedDocuments.length === 0) return;
-
-    setIsTrainingRequesting(true);
-    try {
-      const requestBody = {
-        document_ids: selectedDocuments,
-        use_azure: useAzure,
-      };
-      if (useAzure && azureValidation?.compute_target) {
-        requestBody.compute_target = azureValidation.compute_target;
-      }
-
-      const response = await fetch(`${backendUrl}/api/train`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Training failed to start');
-      }
-
-      if (useAzure) {
-        alert(
-          `Azure ML training started successfully!\n\n` +
-            `Training ID: ${data.training_id}\n` +
-            `Compute Target: ${data.compute_target}\n` +
-            `Documents: ${data.documents.join(', ')}\n` +
-            `Estimated Cost: $${data.estimated_cost || 'N/A'}`
-        );
-      } else {
-        alert(
-          `Local training started successfully!\n\n` +
-            `Training ID: ${data.training_id}\n` +
-            `Documents: ${data.documents.join(', ')}`
-        );
-      }
-
-      // Clear selection + validation after starting
-      setSelectedDocuments([]);
-      setValidationPassed(false);
-    } catch (error) {
-      // Show detailed error if available
-      alert('Training failed: ' + error.message);
-    } finally {
-      setIsTrainingRequesting(false);
-    }
-  };
-
-  // ————————————————————————————————
-  // toggleSelectAll, clearSelection, toggleDocumentSelection
-  // ————————————————————————————————
+  // Selection functions
   const clearSelection = () => {
     setSelectedDocuments([]);
-    setAzureValidation(null);
-    setAzureError(null);
-    setValidationPassed(false);
   };
 
   const toggleSelectAll = () => {
@@ -637,29 +316,6 @@ const DocumentsTab = ({
   };
 
   const allSelected = documents.length > 0 && selectedDocuments.length === documents.length;
-
-  const isAzureEnabled = () => {
-    const azureStatus = getAzureStatus();
-    return (
-      selectedDocuments.length > 0 &&
-      azureStatus.available &&
-      azureValidation?.can_train &&
-      !realTimeStatus?.is_training &&
-      !isValidatingAzure &&
-      !azureError
-    );
-  };
-
-  const getAzureButtonTooltip = () => {
-    const azureStatus = getAzureStatus();
-    if (!azureStatus.available) return azureStatus.reason;
-    if (selectedDocuments.length === 0) return 'No documents selected';
-    if (isValidatingAzure) return 'Validating Azure configuration.';
-    if (azureError) return azureError.message;
-    if (azureValidation && !azureValidation.can_train) return azureValidation.reason;
-    if (realTimeStatus?.is_training) return 'Training already in progress';
-    return null;
-  };
 
   const handleDeleteDocument = async (e, docId) => {
     e.stopPropagation();
@@ -682,331 +338,11 @@ const DocumentsTab = ({
     }
   };
 
-  // Training monitor component
-  const renderTrainingMonitor = () => {
-    if (!realTimeStatus.is_training && azureJobs.filter(job => ['Running', 'Starting', 'Preparing'].includes(job.status)).length === 0) {
-      return null;
-    }
-
-    const runningAzureJobs = azureJobs.filter(job => ['Running', 'Starting', 'Preparing'].includes(job.status));
-
-    return (
-      <div className="training-monitor-container" style={{
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05))',
-        border: '2px solid rgba(59, 130, 246, 0.2)',
-        borderRadius: '16px',
-        padding: isTrainingMinimized ? '12px 20px' : '20px',
-        marginBottom: '24px',
-        position: 'relative',
-        transition: 'all 0.3s ease',
-      }}>
-        {/* Header with minimize/maximize */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: isTrainingMinimized ? 0 : '16px',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '16px',
-            fontWeight: '600',
-            color: '#3b82f6',
-          }}>
-            <Activity className="w-5 h-5" />
-            <span>Training Monitor</span>
-            {realTimeStatus.is_training && (
-              <span style={{
-                fontSize: '12px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                color: '#3b82f6',
-                padding: '2px 8px',
-                borderRadius: '8px',
-                fontWeight: '500',
-              }}>
-                ACTIVE
-              </span>
-            )}
-          </div>
-          <button
-            onClick={() => setIsTrainingMinimized(!isTrainingMinimized)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#6b7280',
-            }}
-          >
-            {isTrainingMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-          </button>
-        </div>
-
-        {!isTrainingMinimized && (
-          <>
-            {/* Local Training Status */}
-            {realTimeStatus.is_training && (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                padding: '16px',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                border: '1px solid rgba(59, 130, 246, 0.1)',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '12px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#1f2937',
-                }}>
-                  <Server className="w-4 h-4" />
-                  <span>Local Training Progress</span>
-                </div>
-                
-                <div style={{
-                  width: '100%',
-                  height: '8px',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  borderRadius: '4px',
-                  overflow: 'hidden',
-                  marginBottom: '8px',
-                }}>
-                  <div style={{
-                    width: `${realTimeStatus.progress}%`,
-                    height: '100%',
-                    background: 'linear-gradient(90deg, #3b82f6, #10b981)',
-                    transition: 'width 0.3s ease',
-                    borderRadius: '4px',
-                  }} />
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '12px',
-                  color: '#6b7280',
-                }}>
-                  <span>{realTimeStatus.progress}% - {realTimeStatus.status_message}</span>
-                  {realTimeStatus.current_document && (
-                    <span style={{ 
-                      background: 'rgba(59, 130, 246, 0.1)', 
-                      padding: '2px 6px', 
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                    }}>
-                      {realTimeStatus.current_document}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Azure Jobs Status */}
-            {runningAzureJobs.length > 0 && (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                padding: '16px',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                border: '1px solid rgba(59, 130, 246, 0.1)',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '12px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#1f2937',
-                }}>
-                  <Cloud className="w-4 h-4" />
-                  <span>Azure ML Jobs</span>
-                  {loadingAzureJobs && <Loader className="w-4 h-4 animate-spin" />}
-                </div>
-                
-                {runningAzureJobs.map((job, index) => (
-                  <div key={job.name} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 12px',
-                    background: 'rgba(59, 130, 246, 0.05)',
-                    borderRadius: '8px',
-                    marginBottom: index < runningAzureJobs.length - 1 ? '8px' : 0,
-                    fontSize: '12px',
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: '600', color: '#1f2937' }}>
-                        {job.display_name || job.name}
-                      </div>
-                      <div style={{ color: '#6b7280', fontSize: '11px' }}>
-                        {job.compute_target} • {job.status}
-                      </div>
-                    </div>
-                    <div style={{
-                      background: job.status === 'Running' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                      color: job.status === 'Running' ? '#059669' : '#d97706',
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                    }}>
-                      {job.status}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Quick Metrics */}
-            {trainingMetrics && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                gap: '12px',
-                marginBottom: '16px',
-              }}>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(59, 130, 246, 0.1)',
-                }}>
-                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-                    {trainingMetrics.total_training_sessions}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '500' }}>
-                    Total Sessions
-                  </div>
-                </div>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(59, 130, 246, 0.1)',
-                }}>
-                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-                    {trainingMetrics.successful_sessions}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '500' }}>
-                    Successful
-                  </div>
-                </div>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(59, 130, 246, 0.1)',
-                }}>
-                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-                    ${trainingMetrics.total_cost || '0'}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '500' }}>
-                    Total Cost
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Notifications */}
-            {notifications.length > 0 && (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid rgba(59, 130, 246, 0.1)',
-              }}>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#1f2937',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}>
-                  <Info className="w-3 h-3" />
-                  Recent Updates
-                </div>
-                {notifications.slice(0, 2).map((notif, index) => (
-                  <div key={notif.id || index} style={{
-                    fontSize: '11px',
-                    color: '#6b7280',
-                    marginBottom: index < Math.min(notifications.length, 2) - 1 ? '4px' : 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}>
-                    {notif.type === 'success' && <CheckCircle className="w-3 h-3 text-green-600" />}
-                    {notif.type === 'warning' && <AlertTriangle className="w-3 h-3 text-yellow-600" />}
-                    {notif.type === 'info' && <Info className="w-3 h-3 text-blue-600" />}
-                    <span>{notif.message}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: '10px', opacity: 0.7 }}>
-                      {notif.time}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Minimized view */}
-        {isTrainingMinimized && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            fontSize: '12px',
-            color: '#6b7280',
-          }}>
-            {realTimeStatus.is_training && (
-              <>
-                <div style={{
-                  width: '60px',
-                  height: '4px',
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  borderRadius: '2px',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    width: `${realTimeStatus.progress}%`,
-                    height: '100%',
-                    background: '#3b82f6',
-                    borderRadius: '2px',
-                    transition: 'width 0.3s ease',
-                  }} />
-                </div>
-                <span>{realTimeStatus.progress}%</span>
-              </>
-            )}
-            {runningAzureJobs.length > 0 && (
-              <span>{runningAzureJobs.length} Azure job{runningAzureJobs.length > 1 ? 's' : ''} running</span>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="tab-content">
       {/* Header with Upload / Refresh / Clear All */}
       <div className="documents-header">
-        <h3> Medical Documents</h3>
+        <h3>Medical Documents</h3>
         <div className="documents-actions">
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -1040,7 +376,13 @@ const DocumentsTab = ({
       </div>
 
       {/* Training Monitor - Only shows when training is active */}
-      {renderTrainingMonitor()}
+      <TrainingMonitor
+        realTimeStatus={trainingData.realTimeStatus}
+        azureJobs={trainingData.azureJobs}
+        loadingAzureJobs={trainingData.loadingAzureJobs}
+        trainingMetrics={trainingData.trainingMetrics}
+        notifications={trainingData.notifications}
+      />
 
       {/* Hidden file input */}
       <input
@@ -1198,111 +540,6 @@ const DocumentsTab = ({
         </div>
       )}
 
-      {/* Azure status display (with "validationPassed" taking top priority) */}
-      {selectedDocuments.length > 0 &&
-        (() => {
-          if (validationPassed) {
-            return (
-              <div
-                style={{
-                  padding: '12px 16px',
-                  marginBottom: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #10b981',
-                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '8px',
-                  }}
-                >
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span style={{ fontWeight: 'bold' }}>Azure ML Ready for Training</span>
-                  {azureValidation?.estimated_cost && (
-                    <span
-                      style={{
-                        marginLeft: '8px',
-                        fontSize: '12px',
-                        color: '#6b7280',
-                        backgroundColor: '#f3f4f6',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      Est. cost: ${azureValidation.estimated_cost}
-                    </span>
-                  )}
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: '#6b7280',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Compute: {azureValidation.compute_target} | VM: {azureValidation.vm_size} | Duration:{' '}
-                  {azureValidation.estimated_duration} | Documents: {azureValidation.total_documents}
-                </div>
-                {azureWorkspaceInfo && (
-                  <div
-                    style={{
-                      fontSize: '11px',
-                      color: '#9ca3af',
-                      marginTop: '8px',
-                    }}
-                  >
-                    Workspace: {azureWorkspaceInfo.name} ({azureWorkspaceInfo.location})
-                  </div>
-                )}
-                {azureValidation.warnings?.length > 0 && (
-                  <div style={{ marginTop: '8px' }}>
-                    {azureValidation.warnings.map((warning, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          fontSize: '11px',
-                          color: '#f59e0b',
-                        }}
-                      >
-                        ⚠️ {warning}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          } else if (azureError) {
-            return (
-              <div className="azure-validation-status error">
-                <AlertTriangle className="w-4 h-4 text-red-600" />
-                <span>{azureError.message}</span>
-                {azureError.help && (
-                  <a
-                    href={azureError.help}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ marginLeft: '8px', fontSize: '11px', color: '#9ca3af' }}
-                  >
-                    Learn more
-                  </a>
-                )}
-              </div>
-            );
-          } else if (isValidatingAzure) {
-            return (
-              <div className="azure-validation-status">
-                <Loader className="w-4 h-4 spinning text-blue-600" />
-                <span>Validating Azure ML configuration...</span>
-              </div>
-            );
-          }
-          return null;
-        })()}
-
       {/* List of documents */}
       {documents.length > 0 && (
         <div className="documents-list" style={{ marginTop: '16px' }}>
@@ -1351,147 +588,14 @@ const DocumentsTab = ({
         </div>
       )}
 
-      {/* Training controls */}
-      {selectedDocuments.length > 0 && (
-        <div
-          className="training-controls"
-          style={{
-            marginTop: '24px',
-            padding: '20px',
-            borderRadius: '12px',
-            backgroundColor: 'rgba(243, 244, 246, 0.5)',
-            border: '1px solid #e5e7eb',
-          }}
-        >
-          <div
-            className="training-info"
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px',
-            }}
-          >
-            <div
-              className="selected-info"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#1f2937',
-              }}
-            >
-              <Activity className="w-5 h-5 text-blue-600" />
-              {selectedDocuments.length} document
-              {selectedDocuments.length > 1 ? 's' : ''} selected for training
-            </div>
-            <button
-              onClick={clearSelection}
-              className="btn btn-secondary"
-              style={{
-                fontSize: '12px',
-                padding: '6px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                backgroundColor: 'white',
-                border: '1px solid #d1d5db',
-              }}
-            >
-              <X className="w-3 h-3" />
-              Clear Selection
-            </button>
-          </div>
-
-          <div
-            className="training-buttons"
-            style={{
-              display: 'flex',
-              gap: '12px',
-              alignItems: 'center',
-            }}
-          >
-            {/* Local training */}
-            <button
-              onClick={() => startTraining(false)}
-              className="btn btn-primary"
-              disabled={realTimeStatus?.is_training || !backendConnected || isTrainingRequesting}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 20px',
-                fontSize: '14px',
-                fontWeight: '600',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor:
-                  realTimeStatus?.is_training || !backendConnected || isTrainingRequesting
-                    ? 'not-allowed'
-                    : 'pointer',
-                opacity:
-                  realTimeStatus?.is_training || !backendConnected || isTrainingRequesting
-                    ? 0.6
-                    : 1,
-              }}
-              title={
-                realTimeStatus?.is_training
-                  ? 'Training already in progress'
-                  : !backendConnected
-                  ? 'Backend not connected'
-                  : 'Train model locally'
-              }
-            >
-              <Server className="w-5 h-5" />
-              {isTrainingRequesting ? <>Launching...</> : 'Train Locally'}
-            </button>
-
-            {/* Azure ML training */}
-            {getAzureStatus().available && (
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={() => startTraining(true)}
-                  className="btn btn-azure"
-                  disabled={!isAzureEnabled() || isTrainingRequesting}
-                  onMouseEnter={() => setShowBillingTooltip(true)}
-                  onMouseLeave={() => setShowBillingTooltip(false)}
-                  title={getAzureButtonTooltip()}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '12px 20px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    background: isAzureEnabled()
-                      ? 'linear-gradient(135deg, #0078d4, #106ebe)'
-                      : '#9ca3af',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: isAzureEnabled() && !isTrainingRequesting ? 'pointer' : 'not-allowed',
-                    transition: 'all 0.2s ease',
-                    boxShadow: isAzureEnabled()
-                      ? '0 4px 12px rgba(16, 110, 190, 0.3)'
-                      : 'none',
-                    opacity: isTrainingRequesting ? 0.6 : 1,
-                  }}
-                >
-                  <Cloud className="w-5 h-5" />
-                  {isTrainingRequesting ? 'Launching Azure...' : 'Train on Azure ML'}
-                  {(isValidatingAzure || isTrainingRequesting) && (
-                    <Loader className="w-4 h-4 ml-2 spinning" />
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Training Controls */}
+      <TrainingControls
+        selectedDocuments={selectedDocuments}
+        onClearSelection={clearSelection}
+        onStartTraining={trainingData.startTraining}
+        trainingData={trainingData}
+        backendConnected={backendConnected}
+      />
     </div>
   );
 };

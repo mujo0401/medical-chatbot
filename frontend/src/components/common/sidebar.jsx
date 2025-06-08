@@ -1,3 +1,5 @@
+// components/common/sidebar.jsx - Updated for Enhanced Model Support
+
 import React, { useState, useEffect } from 'react';
 import { 
   X,
@@ -10,7 +12,12 @@ import {
   Settings,
   MessageCircle,
   Clock,
-  Loader2
+  Loader2,
+  Cloud,
+  GitMerge,
+  Sparkles,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 
 // DNA Animation Components (keeping your existing animation)
@@ -224,6 +231,17 @@ const LLMResponseIndicator = ({ isResponding, modelType }) => {
   
   if (!isResponding) return null;
   
+  const getModelDisplayName = (type) => {
+    switch (type) {
+      case 'openai': return 'GPT-4';
+      case 'local_trained': return 'Local AI';
+      case 'eleuther': return 'EleutherAI';
+      case 'hybrid_local_eleuther': return 'Hybrid AI';
+      case 'hybrid_all': return 'Multi-AI';
+      default: return 'AI';
+    }
+  };
+  
   return (
     <div style={{
       position: 'fixed',
@@ -244,19 +262,19 @@ const LLMResponseIndicator = ({ isResponding, modelType }) => {
     }}>
       <Loader2 className="w-4 h-4 animate-spin" />
       <span style={{ fontSize: '14px', fontWeight: '600' }}>
-        {modelType === 'openai' ? 'GPT-4' : modelType === 'local' ? 'Local AI' : 'Hybrid AI'} thinking{dots}
+        {getModelDisplayName(modelType)} thinking{dots}
       </span>
     </div>
   );
 };
 
 // Main Enhanced Sidebar Component
-const EnhancedMedicalSidebar = ({
+const Sidebar = ({
   sidebarOpen = true,
   setSidebarOpen = () => {},
   newChatSession = () => {},
-  clearChat = () => {}, // Keep original function name
-  modelPreference = 'local',
+  clearChat = () => {},
+  modelPreference = 'hybrid_local_eleuther',
   setModel = () => {},
   backendConnected = false,
   trainingStatus = null,
@@ -264,9 +282,53 @@ const EnhancedMedicalSidebar = ({
   currentSession = null,
   setCurrentSession = () => {},
   removeSession = () => {},
-  isLLMResponding = false, // New prop for LLM response state
+  isLLMResponding = false,
 }) => {
   const [confirmClear, setConfirmClear] = useState(false);
+  
+  // Enhanced model configurations with new models
+  const modelConfigs = {
+    openai: {
+      key: 'openai',
+      icon: Cloud,
+      label: 'OpenAI GPT-4',
+      desc: 'Advanced reasoning & general knowledge',
+      color: '#10b981',
+      gradient: 'linear-gradient(135deg, #10b981, #059669)',
+    },
+    local_trained: {
+      key: 'local_trained',
+      icon: Cpu,
+      label: 'Local Trained',
+      desc: 'Fine-tuned on your medical data',
+      color: '#3b82f6',
+      gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+    },
+    eleuther: {
+      key: 'eleuther',
+      icon: Brain,
+      label: 'EleutherAI',
+      desc: 'Open-source large language model',
+      color: '#8b5cf6',
+      gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+    },
+    hybrid_local_eleuther: {
+      key: 'hybrid_local_eleuther',
+      icon: GitMerge,
+      label: 'Hybrid Local+Eleuther',
+      desc: 'Best of local training & EleutherAI',
+      color: '#f59e0b',
+      gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+    },
+    hybrid_all: {
+      key: 'hybrid_all',
+      icon: Sparkles,
+      label: 'Multi-Model Hybrid',
+      desc: 'Combines all available models',
+      color: '#ef4444',
+      gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    },
+  };
   
   // Filter and format sessions to match current session
   const formattedSessions = chatSessions.map(session => ({
@@ -278,13 +340,16 @@ const EnhancedMedicalSidebar = ({
     timestamp: session.timestamp || session.createdAt || new Date().toISOString()
   })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
+  // Get current model config
+  const currentModelConfig = modelConfigs[modelPreference] || modelConfigs.hybrid_local_eleuther;
+
   return (
     <>
       {/* Enhanced LLM Response Indicator */}
       <LLMResponseIndicator isResponding={isLLMResponding} modelType={modelPreference} />
       
       <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`} style={{
-        width: sidebarOpen ? '300px' : '0',
+        width: sidebarOpen ? '320px' : '0',
         background: '#ffffff',
         borderRight: '1px solid #f3f4f6',
         transition: 'all 0.3s ease',
@@ -472,84 +537,159 @@ const EnhancedMedicalSidebar = ({
             </div>
           </div>
           
-          {/* AI Model Selector - Enhanced */}
+          {/* Enhanced AI Model Selector */}
           <div style={{
             background: '#ffffff',
             borderRadius: '16px',
-            padding: '14px',
+            padding: '18px',
             boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
             border: '1px solid #f9fafb',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px'
+            gap: '16px'
           }}>
             <div style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151',
-              marginBottom: '8px'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '4px'
             }}>
-              AI Model
+              <Settings className="w-4 h-4" style={{ color: '#6366f1' }} />
+              <span style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151'
+              }}>
+                AI Model Selection
+              </span>
             </div>
             
+            {/* Current Model Display */}
+            <div style={{
+              padding: '12px 16px',
+              background: currentModelConfig.gradient,
+              borderRadius: '12px',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '8px'
+            }}>
+              <currentModelConfig.icon className="w-5 h-5" />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '13px', fontWeight: '600' }}>
+                  {currentModelConfig.label}
+                </div>
+                <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                  {currentModelConfig.desc}
+                </div>
+              </div>
+              <CheckCircle className="w-4 h-4" />
+            </div>
+            
+            {/* Model Options */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
               gap: '8px'
             }}>
-              {[
-                { key: 'openai', icon: Zap, label: 'GPT-4', desc: 'Advanced reasoning' },
-                { key: 'local', icon: Cpu, label: 'Local', desc: 'Privacy-focused' },
-                { key: 'hybrid', icon: Brain, label: 'Hybrid', desc: 'Best of both' }
-              ].map((model) => (
-                <div
-                  key={model.key}
-                  onClick={() => backendConnected && setModel(model.key)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 12px',
-                    background: modelPreference === model.key ? 'rgba(59, 130, 246, 0.1)' : '#fefefe',
-                    borderRadius: '12px',
-                    border: modelPreference === model.key ? '1px solid #3b82f6' : '1px solid transparent',
-                    cursor: backendConnected ? 'pointer' : 'not-allowed',
-                    transition: 'all 0.2s ease',
-                    opacity: backendConnected ? 1 : 0.5
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <model.icon className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: '500', color: '#1f2937' }}>
-                        {model.label}
+              {Object.values(modelConfigs).map((model) => {
+                const isSelected = modelPreference === model.key;
+                const isAvailable = backendConnected; // You can enhance this with actual model availability
+                
+                return (
+                  <div
+                    key={model.key}
+                    onClick={() => isAvailable && !isLLMResponding && setModel(model.key)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 12px',
+                      background: isSelected ? 'rgba(99, 102, 241, 0.1)' : '#fefefe',
+                      borderRadius: '10px',
+                      border: isSelected ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid #f3f4f6',
+                      cursor: (isAvailable && !isLLMResponding) ? 'pointer' : 'not-allowed',
+                      transition: 'all 0.2s ease',
+                      opacity: (isAvailable && !isLLMResponding) ? 1 : 0.6
+                    }}
+                    onMouseOver={(e) => {
+                      if (isAvailable && !isLLMResponding && !isSelected) {
+                        e.currentTarget.style.background = '#f9fafb';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = '#fefefe';
+                        e.currentTarget.style.borderColor = '#f3f4f6';
+                      }
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        padding: '6px',
+                        borderRadius: '8px',
+                        background: isSelected ? model.gradient : '#f3f4f6',
+                        color: isSelected ? 'white' : model.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <model.icon className="w-4 h-4" />
                       </div>
-                      <div style={{ fontSize: '11px', color: '#6b7280' }}>
-                        {model.desc}
+                      <div>
+                        <div style={{ 
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          color: isSelected ? '#6366f1' : '#1f2937' 
+                        }}>
+                          {model.label}
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#6b7280' }}>
+                          {model.desc}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {!isAvailable && <AlertTriangle className="w-3 h-3" style={{ color: '#f59e0b' }} />}
+                      {isLLMResponding && isSelected && <Loader2 className="w-3 h-3 animate-spin" style={{ color: '#6366f1' }} />}
+                      <div style={{
+                        width: '24px',
+                        height: '14px',
+                        background: isSelected ? '#6366f1' : '#e5e7eb',
+                        borderRadius: '14px',
+                        position: 'relative',
+                        transition: 'all 0.2s ease'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '2px',
+                          left: isSelected ? '12px' : '2px',
+                          width: '10px',
+                          height: '10px',
+                          background: 'white',
+                          borderRadius: '50%',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                        }} />
                       </div>
                     </div>
                   </div>
-                  
-                  <div style={{
-                    width: '36px',
-                    height: '20px',
-                    background: '#f3f4f6',
-                    borderRadius: '20px',
-                    position: 'relative'
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      top: '2px',
-                      left: modelPreference === model.key ? '18px' : '2px',
-                      width: '16px',
-                      height: '16px',
-                      background: modelPreference === model.key ? '#3b82f6' : '#9ca3af',
-                      borderRadius: '50%',
-                      transition: 'all 0.2s ease'
-                    }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+            
+            {/* Model Status */}
+            <div style={{
+              fontSize: '10px',
+              color: '#6b7280',
+              textAlign: 'center',
+              paddingTop: '8px',
+              borderTop: '1px solid #f3f4f6'
+            }}>
+              {backendConnected ? '✅ Models Available' : '⚠️ Backend Disconnected'}
             </div>
           </div>
           
@@ -643,11 +783,11 @@ const EnhancedMedicalSidebar = ({
             </div>
             
             <div style={{
-              maxHeight: '180px',
+              maxHeight: '200px',
               overflowY: 'auto'
             }}>
               {formattedSessions && formattedSessions.length > 0 ? (
-                formattedSessions.slice(0, 5).map(session => (
+                formattedSessions.slice(0, 6).map(session => (
                   <div
                     key={session.id}
                     onClick={() => setCurrentSession(session.id)}
@@ -665,12 +805,12 @@ const EnhancedMedicalSidebar = ({
                     }}
                     onMouseOver={(e) => {
                       if (!session.isActive) {
-                        e.target.style.background = '#fafafa';
+                        e.currentTarget.style.background = '#fafafa';
                       }
                     }}
                     onMouseOut={(e) => {
                       if (!session.isActive) {
-                        e.target.style.background = 'transparent';
+                        e.currentTarget.style.background = 'transparent';
                       }
                     }}
                   >
@@ -827,6 +967,7 @@ const EnhancedMedicalSidebar = ({
         
         .w-3 { width: 12px; height: 12px; }
         .w-4 { width: 16px; height: 16px; }
+        .w-5 { width: 20px; height: 20px; }
       `}</style>
     </>
   );
@@ -872,4 +1013,4 @@ const formatTimeAgo = (timestamp) => {
   }
 };
 
-export default EnhancedMedicalSidebar;
+export default Sidebar;

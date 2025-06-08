@@ -406,9 +406,9 @@ class AzureMLClient:
 
     def submit_training_job(
         self,
-        script_path: Optional[str],  # Pass None to indicate “Git‐based” code
-        index_path: str,             # Azure ML Data Asset URI, not local path
-        metadata_path: str,          # Azure ML Data Asset URI
+        script_path: str,
+        index_path: str,
+        metadata_path: str,
         compute_target: str,
         training_id: str,
     ) -> str:
@@ -434,90 +434,184 @@ class AzureMLClient:
             logger.error(f"[submit_training_job] Error fetching compute target '{compute_target}': {e}")
             raise RuntimeError(f"Compute target validation failed: {e}") from e
 
-        # ── Use Git-based code + Data Asset URIs ──
+        # 2) Copy index, metadata, script, training package, and config file into models/indexes/<training_id>/
+        repo_root = Path(script_path).parent.parent
+        indexes_folder = repo_root / "models" / "indexes" / training_id
+        indexes_folder.mkdir(parents=True, exist_ok=True)
+
+        code_index_path = indexes_folder / f"{training_id}.index"
+        code_metadata_path = indexes_folder / f"{training_id}_chunks.pkl"
+        script_dest = indexes_folder / Path(script_path).name
+        training_src_folder = repo_root / "training"
+        training_dst_folder = indexes_folder / "training"
+        config_src = repo_root / "config.py"  # Source config file
+        config_dst = indexes_folder / "config.py"  # Destination config file
+
+        try:
+            # Copy FAISS index
+            index_data = Path(index_path).read_bytes()
+            code_index_path.write_bytes(index_data)
+
+            # Copy chunks metadata
+            metadata_data = Path(metadata_path).read_bytes()
+            code_metadata_path.write_bytes(metadata_data)
+
+            # Copy azure_train_<ID>.py script
+            script_bytes = Path(script_path).read_bytes()
+            script_dest.write_bytes(script_bytes)
+
+            # Copy config.py file
+            if config_src.exists():
+                config_data = config_src.read_bytes()
+                config_dst.write_bytes(config_data)
+                logger.info(f"[submit_training_job] Copied config.py to {config_dst}")
+            else:
+                logger.warning(f"[submit_training_job] config.py not found at {config_src}")
+                minimal_config = '''
+import os
+from pathlib import Path
+
+# Minimal config for Azure ML training
+MODELS_DIR = Path("/tmp/models")
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Other config values that might be needed
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+MODEL_PREFERENCE = "local"
+'''
+                config_dst.write_text(minimal_config)
+                logger.info(f"[submit_training_job] Created minimal config.py at {config_dst}")
+
+            # Copy entire training/ package
+            import shutil
+            if training_dst_folder.exists():
+                shutil.rmtree(training_dst_folder)
+            shutil.copytree(training_src_folder, training_dst_folder)
+
+            logger.info(f"[submit_training_job] Copied index, metadata, script, config, and training package into {indexes_folder}")
+        except Exception as e:
+            logger.error(f"[submit_training_job] Failed to copy data files: {e}")
+            try:
+                code_index_path.unlink(missing_ok=True)
+                code_metadata_path.unlink(missing_ok=True)
+                script_dest.unlink(missing_ok=True)
+                config_dst.unlink(missing_ok=True)
+                if training_dst_folder.exists():
+                    shutil.rmtree(training_dst_folder)
+            except Exception:
+                pass
+            raise RuntimeError(f"Failed to copy data files: {e}") from e
+
+        # 3) Build the Azure ML command job
         try:
             from azure.ai.ml import command
-            from azure.ai.ml.entities import CodeConfiguration
+            from azure.ai.ml.entities import Environment, BuildContext
         except ImportError as e:
             logger.error(f"[submit_training_job] Failed to import Azure ML SDK: {e}")
             raise RuntimeError(f"Azure ML SDK import failed: {e}") from e
-
-        # Build CodeConfiguration pointing at your Git repo
-        git_url = "https://github.com/yourOrg/yourRepo.git"
-        branch  = "main"
-        subpath = "training"  # Must match where train.py lives
-        code_config = CodeConfiguration(code=f"{git_url}#{branch}:{subpath}")
-
-        # Build inputs using Data Asset URIs
-        ml_inputs = {
-            "metadata_pkl": metadata_path,   # e.g. "azureml://datastores/.../chunks_metadata.pkl"
-            "faiss_index":  index_path       # e.g. "azureml://datastores/.../training_id.index"
-        }
 
         timestamp = int(time.time())
         job_name = f"medical-training-{training_id[:8]}-{timestamp}"
         logger.info(f"[submit_training_job] Submitting job '{job_name}' to compute '{compute_target}'")
 
         try:
-            env = self.ml_client.environments.get(
-                "AzureML-pytorch-1.10-ubuntu18.04-py38-cuda11-gpu", version="latest"
-            )
-            logger.info("[submit_training_job] Using curated PyTorch environment")
-        except Exception:
-            from azure.ai.ml.entities import Environment
-            env = Environment(
-                name="medical-training-env",
-                description="Environment for medical chatbot training",
-                conda_file={
-                    "name": "medical_training",
-                    "channels": ["defaults", "conda-forge"],
-                    "dependencies": [
-                        "python=3.8",
-                        "pip",
-                        {
-                            "pip": [
-                                "torch",
-                                "transformers",
-                                "datasets",
-                                "numpy",
-                                "faiss-cpu",
-                                "sentence-transformers",
-                                "openai",
-                                "scikit-learn",
-                                "accelerate>=0.26.0",
-                            ]
-                        },
-                    ],
-                },
-                image="mcr.microsoft.com/azureml/base:latest",
-            )
-            logger.info("[submit_training_job] Created custom environment with base image")
+            try:
+                env = self.ml_client.environments.get(
+                    "AzureML-pytorch-1.10-ubuntu18.04-py38-cuda11-gpu", version="latest"
+                )
+                logger.info("[submit_training_job] Using curated PyTorch environment")
+            except Exception:
+                env = Environment(
+                    name="medical-training-env",
+                    description="Environment for medical chatbot training",
+                    conda_file={
+                        "name": "medical_training",
+                        "channels": ["defaults", "conda-forge"],
+                        "dependencies": [
+                            "python=3.8",
+                            "pip",
+                            {
+                                "pip": [
+                                    "torch",
+                                    "transformers",
+                                    "datasets",
+                                    "numpy",
+                                    "faiss-cpu",
+                                    "sentence-transformers",
+                                    "openai",
+                                    "scikit-learn",
+                                    "accelerate>=0.26.0",
+                                ]
+                            },
+                        ],
+                    },
+                    image="mcr.microsoft.com/azureml/base:latest",
+                )
+                logger.info("[submit_training_job] Created custom environment with base image")
 
-        ml_job = command(
-            name=job_name,
-            code=code_config,
-            inputs=ml_inputs,
-            command=(
-                "python train.py "
-                "--metadata_path ${{inputs.metadata_pkl}} "
-                "--index_path    ${{inputs.faiss_index}} "
-                f"--training_id {training_id}"
-            ),
-            environment=env,
-            compute=compute_target,
-            experiment_name="medical-chatbot-training",
-            display_name=f"Medical Chatbot Training {training_id[:8]}",
-            tags={ "training_id": training_id, "submitted_by": "medical_chatbot_trainer" },
-        )
-        logger.info("[submit_training_job] Built Azure ML command job definition")
+            ml_job = command(
+                inputs={
+                    "index_path": str(code_index_path.name),
+                    "metadata_path": str(code_metadata_path.name),
+                },
+                code=str(indexes_folder),
+                command=(
+                    f"python {script_dest.name} "
+                    f"--index_path {code_index_path.name} "
+                    f"--metadata_path {code_metadata_path.name} "
+                    f"--training_id {training_id}"
+                ),
+                environment=env,
+                compute=compute_target,
+                experiment_name="medical-chatbot-training",
+                display_name=f"Medical Chatbot Training {training_id[:8]}",
+                description=f"Training job for medical chatbot (ID: {training_id})",
+                tags={
+                    "training_id": training_id,
+                    "submitted_by": "medical_chatbot_trainer",
+                    "timestamp": datetime.now().isoformat(),
+                    "compute_target": compute_target,
+                },
+            )
+            logger.info("[submit_training_job] Built Azure ML command job definition")
+        except Exception as e:
+            logger.error(f"[submit_training_job] Error constructing Azure ML job: {e}")
+            try:
+                code_index_path.unlink(missing_ok=True)
+                code_metadata_path.unlink(missing_ok=True)
+                script_dest.unlink(missing_ok=True)
+                config_dst.unlink(missing_ok=True)
+                if training_dst_folder.exists():
+                    shutil.rmtree(training_dst_folder)
+            except Exception:
+                pass
+            raise RuntimeError(f"Failed to build Azure ML command job: {e}") from e
 
         # 4) Actually submit the job
         try:
             submitted_job = self.ml_client.jobs.create_or_update(ml_job)
             logger.info(f"[submit_training_job] Successfully queued job: {submitted_job.name}")
+            try:
+                code_index_path.unlink(missing_ok=True)
+                code_metadata_path.unlink(missing_ok=True)
+                script_dest.unlink(missing_ok=True)
+                config_dst.unlink(missing_ok=True)
+                if training_dst_folder.exists():
+                    shutil.rmtree(training_dst_folder)
+            except Exception:
+                pass
             return submitted_job.name
         except Exception as e:
             logger.error(f"[submit_training_job] Azure ML job submission failed: {e}")
+            try:
+                code_index_path.unlink(missing_ok=True)
+                code_metadata_path.unlink(missing_ok=True)
+                script_dest.unlink(missing_ok=True)
+                config_dst.unlink(missing_ok=True)
+                if training_dst_folder.exists():
+                    shutil.rmtree(training_dst_folder)
+            except Exception:
+                pass
             raise RuntimeError(f"Azure ML job submission failed: {e}") from e
 
     def get_job_status(self, job_name: str) -> Optional[Dict[str, Any]]:
@@ -633,6 +727,67 @@ class AzureMLClient:
         except Exception as e:
             logger.error(f"Failed to get billing information: {e}")
             return {"error": str(e)}
+
+    def download_job_outputs(self, job_name: str, local_destination: str) -> bool:
+        """
+        Download all outputs from a completed Azure ML job to local directory.
+        
+        Args:
+            job_name: Name of the Azure ML job
+            local_destination: Local path where outputs should be saved
+            
+        Returns:
+            True if download succeeded, False otherwise
+        """
+        if not self.ml_client:
+            logger.error("Azure ML client not available")
+            return False
+
+        try:
+            # Get the job details
+            job = self.ml_client.jobs.get(job_name)
+            
+            if job.status != "Completed":
+                logger.warning(f"Job {job_name} is not completed (status: {job.status})")
+                return False
+
+            # Create local destination directory
+            dest_path = Path(local_destination)
+            dest_path.mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Downloading outputs from job {job_name} to {dest_path}")
+
+            # Download all files from the outputs
+            try:
+                # Use the MLClient's jobs.download method to get outputs
+                self.ml_client.jobs.download(
+                    name=job_name, 
+                    download_path=str(dest_path),
+                    output_name="default"  # This downloads the default outputs
+                )
+                
+                logger.info(f"Successfully downloaded outputs from {job_name}")
+                return True
+                
+            except Exception as download_error:
+                logger.error(f"Failed to download outputs: {download_error}")
+                
+                # Fallback: try to access outputs through the job's output URLs
+                try:
+                    # Alternative approach using job artifacts
+                    artifacts = self.ml_client.jobs.list_outputs(job_name)
+                    for artifact_name, artifact_info in artifacts.items():
+                        logger.info(f"Found artifact: {artifact_name}")
+                        # Download individual artifacts here if needed
+                        
+                except Exception as e:
+                    logger.warning(f"Could not list job artifacts: {e}")
+                
+                return False
+
+        except Exception as e:
+            logger.error(f"Error downloading job outputs: {e}")
+            return False
 
 
 def main():

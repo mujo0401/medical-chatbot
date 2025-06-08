@@ -1,9 +1,10 @@
-# routes/chat_routes.py - FIXED: Remove /api prefix since blueprint uses url_prefix="/api"
+# routes/chat_routes.py - Using model preference from config
 
 from flask import Blueprint, request, jsonify
 import uuid
 import logging
 from datetime import datetime
+from config import MODEL_PREFERENCE
 
 from utils.db_utils import (
     fetch_conversation_history,
@@ -73,6 +74,12 @@ def chat():
             "timestamp": datetime.now().isoformat(),
         }), 200
 
+    # ── USE MODEL PREFERENCE FROM CONFIG ─────────────────────────────
+    # Get model preference from config.py instead of hardcoding
+    trainer.model_preference = MODEL_PREFERENCE
+    logger.info(f"Using model preference from config: {MODEL_PREFERENCE}")
+    # ────────────────────────────────────────────────────────────────
+
     # Persist the user's message for conversation history
     try:
         from utils.db_utils import ensure_session_exists
@@ -83,7 +90,7 @@ def chat():
 
     # Generate a response using MedicalChatbotTrainer
     try:
-        # Fixed: generate_response returns a dict, not a string
+        # generate_response returns a dict, not a string
         response_data = trainer.generate_response(message, session_id)
         
         # Extract the reply text for database storage
@@ -91,7 +98,7 @@ def chat():
             reply_text = response_data.get("reply", "I'm sorry, I couldn't generate a response.")
             source_documents = response_data.get("source_documents", [])
         else:
-            # Fallback if response_data is a string (shouldn't happen with fixed trainer)
+            # Fallback if response_data is a plain string (shouldn't happen with the fixed trainer)
             reply_text = str(response_data)
             source_documents = []
         
@@ -117,4 +124,4 @@ def chat():
             "source_documents": [],
             "session_id": session_id,
             "timestamp": datetime.now().isoformat(),
-        }), 200  # Return 200 so frontend gets the error message
+        }), 200  # Return 200 so frontend still sees the error payload
